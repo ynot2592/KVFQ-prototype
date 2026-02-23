@@ -1192,7 +1192,7 @@ async function sendToSheet(payload){
 
     // 중요: GAS는 CORS 때문에 응답을 읽으려 하면 막히는 경우가 많아서
     // 일단 "보내기만" 확실히 되도록 no-cors로 보냄
-    await fetch(SHEET_GAS_URL, {
+    await fetch(GAS_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
