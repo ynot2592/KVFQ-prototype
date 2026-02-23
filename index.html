@@ -112,7 +112,7 @@
   }
   .vas-score{
     font-size: 0.8rem;
-    margin-top: 4px 0 0 0;    /* 위 4px, 아래 0 */
+    margin: 4px 0 0 0;    /* 위 4px, 아래 0 */
     text-align: right;
     color: var(--muted);
   }
@@ -1192,7 +1192,7 @@ async function sendToSheet(payload){
 
     // 중요: GAS는 CORS 때문에 응답을 읽으려 하면 막히는 경우가 많아서
     // 일단 "보내기만" 확실히 되도록 no-cors로 보냄
-    await fetch(SHEET_WEBAPP_URL, {
+    await fetch(SHEET_GAS_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -1469,39 +1469,44 @@ if(mount){
     const resultDiv = document.getElementById('vfqResult');
 
     if(btn && resultDiv){
-      btn.onclick = async ()=>{
-        const missing = [];
-        vfqAnswers.forEach((v,i)=>{ if(v===null) missing.push(i+1); });
-        if(missing.length){
-          resultDiv.textContent = "아직 응답하지 않은 문항이 있습니다: " + missing.join(", ") + "번";
-          return;
-        }
-        // 총합 계산 (0~100 스케일 합)
-        calcVFQ();
-        let txt = "각 문항의 선택한 점수(0–100 스케일):\n";
-        vfqAnswers.forEach((v,i)=>{ txt += (i+1) + "번: " + v + "\n"; });
-        txt += "\n총합: " + S.vfqSum;
-        resultDiv.textContent = txt;
-
-        // ✅ 구글시트로 전송
-        const ok = await sendToSheet({
-           pid: S.pid,
-           consent_at: S.consentAtISO,
-           timestamp: new Date().toISOString(),
-           birth: S.birth,
-           sex: S.sex,
-           vfq_total: S.vfqSum,
-           vfq_items: vfqAnswers
-        });
-
-        if(!ok){
-           alert('구글시트 전송에 실패했습니다. (콘솔 에러 확인)');
-           return;
-
-        go('screen_thankyou');
-      };
+  btn.onclick = async ()=>{
+    const missing = [];
+    vfqAnswers.forEach((v,i)=>{ if(v===null) missing.push(i+1); });
+    if(missing.length){
+      resultDiv.textContent = "아직 응답하지 않은 문항이 있습니다: " + missing.join(", ") + "번";
+      return;
     }
-  }
+
+    // 총합 계산
+    calcVFQ();
+
+    // (테스트용 표시)
+    let txt = "각 문항의 선택한 점수(0–100 스케일):\n";
+    vfqAnswers.forEach((v,i)=>{ txt += (i+1) + "번: " + v + "\n"; });
+    txt += "\n총합: " + S.vfqSum;
+    resultDiv.textContent = txt;
+
+    // ✅ 구글시트로 전송
+    const ok = await sendToSheet({
+      pid: S.pid,
+      consent_at: S.consentAtISO,
+      timestamp: new Date().toISOString(),
+      birth: S.birth,
+      sex: S.sex,
+      vfq_total: S.vfqSum,
+      vfq_items: vfqAnswers
+    });
+
+    if(!ok){
+      alert('구글시트 전송에 실패했습니다. (콘솔 에러 확인)');
+      return;
+    }
+
+    // ✅ 성공했을 때 다음 페이지(지금은 임시로 카메라 교정으로)
+    go('screen_calib');
+  };
+ }
+}
     
   // VFQ 총합 계산: CSV에서 사용하는 값
   function calcVFQ(){
