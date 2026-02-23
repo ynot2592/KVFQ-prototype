@@ -1214,6 +1214,18 @@ async function sendToSheet(payload){
   }
 }
   const S={ pid:"", pdmm:64, vfq:{}, vfqSum:0, focal_px:null, pixPD:0, distNow:NaN, npc:[null,null,null], pvt:{dur:120,start:0,elapsed:0,timer:null,phase:'idle',waitTO:null,goAt:0,rt:[],lapse:0,last:null} }
+
+function toKSTString(d=new Date()){
+  const kst = new Date(d.getTime() + 9*60*60*1000);
+  const yyyy = kst.getUTCFullYear();
+  const mm = String(kst.getUTCMonth()+1).padStart(2,'0');
+  const dd = String(kst.getUTCDate()).padStart(2,'0');
+  const hh = String(kst.getUTCHours()).padStart(2,'0');
+  const mi = String(kst.getUTCMinutes()).padStart(2,'0');
+  const ss = String(kst.getUTCSeconds()).padStart(2,'0');
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`; // 24시간제
+}
+
   // '연구 설명문 전체 보기' 확인 완료 여부
   let fullDocConfirmed = false;
   const NPC_SPEED_MAX = 4.0; // NPC 이동 속도 경고 임계값(cm/s)  
@@ -1499,16 +1511,25 @@ if(mount){
     resultDiv.textContent = txt;
 
     //  구글시트로 전송
+    const now2 = new Date();
+
     const ok = await sendToSheet({
       pid: S.pid,
-      consent_at: S.consentAtISO,
-      consent_at_kst: S.consentAtLocal,  // 화면에 보여주는 한국시간(문자열)
-      timestamp_kst: new Date().toLocaleString('sv-SE', { timeZone:'Asia/Seoul' }).replace('T',' '),
-      timestamp: new Date().toISOString(),
+      consent_at: S.consentAtISO,        // UTC
+      consent_at_kst: S.consentAtKST,    // KST 문자열
+      timestamp: now2.toISOString(),     // UTC
+      timestamp_kst: toKSTString(now2),  // KST 문자열
       birth: S.birth,
       sex: S.sex,
       vfq_total: S.vfqSum,
-      vfq_items: vfqAnswers
+      
+      // q1~q17을 헤더에 맞춰 보내기 (중요!)
+      q1: vfqAnswers[0],  q2: vfqAnswers[1],  q3: vfqAnswers[2],  q4: vfqAnswers[3],  q5: vfqAnswers[4],
+      q6: vfqAnswers[5],  q7: vfqAnswers[6],  q8: vfqAnswers[7],  q9: vfqAnswers[8],  q10: vfqAnswers[9],
+      q11: vfqAnswers[10], q12: vfqAnswers[11], q13: vfqAnswers[12], q14: vfqAnswers[13], q15: vfqAnswers[14],
+      q16: vfqAnswers[15], q17: vfqAnswers[16],
+    });
+
     });
 
     if(!ok){
@@ -1835,15 +1856,15 @@ async function shareCSV(){
 // 동의 버튼 누른 시각 기록 (브라우저에서는 Utilities 사용 불가)
 const now = new Date();
 
-// ✅ 구글시트/CSV용(표준) ISO (UTC 기반)
+// UTC(표준) - 분석/기록용으로 유지
 S.consentAtISO = now.toISOString();
 
-// ✅ 화면 표시용(한국시간, 24시간 표기)
-S.consentAtLocal =
-  now.toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).replace('T', ' ');
+// KST(한국시간) - 사람이 보기 좋은 값
+S.consentAtKST = toKSTString(now);
 
+// 화면 표시도 KST로
 const ct = gid('consentTime');
-if(ct) ct.textContent = "동의 완료 시각: " + S.consentAtLocal;
+if(ct) ct.textContent = "동의 완료 시각: " + S.consentAtKST;
 
 go('screen_home');
 }
