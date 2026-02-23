@@ -1150,8 +1150,8 @@
 <div class="card hidden" id="screen_thankyou">
   <h2>참여해주셔서 감사합니다</h2>
   <p class="small">
-    설문이 정상적으로 제출되었습니다. 창을 닫아주셔도 됩니다.
-  </p>  
+    설문이 정상적으로 제출되었습니다. 창을 닫아주셔도 됩니다. </p>
+</div>  
 
   <!-- 내보내기 -->
 <div class="card hidden" id="screen_export">
@@ -1848,6 +1848,7 @@ async function shareCSV(){
   while(used.includes(pid)) { pid = base+'-'+i; i++; }
 
   gid('pid').value = pid;
+  S.pid = pid;
   S.birth = yyyymmdd;
   S.sex = sex;
 
