@@ -1,0 +1,1785 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>안정피로 정량화 — 배포용 웹앱</title>
+<!-- FaceMesh (전면카메라 눈 랜드마크) → https 환경에서만 동작 권장 -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+<style>
+  :root{--bg:#0b1020;--card:#141a2a;--muted:#a6b2d1;--text:#e6ebff;--accent:#4fd1ff}
+  *{box-sizing:border-box;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+  body{margin:0;background:linear-gradient(180deg,#0b1020,#0f162b);color:var(--text)}
+  .wrap{max-width:980px;margin:0 auto;padding:20px}
+  .card{
+  background:var(--card);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:12px;                 /* 기존 16px → 12px */
+  margin-left:-4px;             /* 모든 카드 좌우 확장 */
+  margin-right:-4px;
+  box-shadow:0 8px 30px rgba(0,0,0,.25);
+}
+
+/* 모바일에서 추가 보정 */
+@media (max-width:430px){
+  .card{
+    padding:10px;
+    margin-left:-4px;
+    margin-right:-4px;
+  }
+}
+
+  h1{margin:0 0 8px;font-size:26px}
+  h2{margin:0 0 6px;font-size:20px}
+  p{color:var(--muted);line-height:1.6}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .btn{appearance:none;border:0;border-radius:12px;padding:10px 14px;background:#1f2a44;color:#e6f0ff;font-weight:600;cursor:pointer}
+  .btn[disabled]{opacity:.5;cursor:not-allowed;}
+  .btn.primary{background:linear-gradient(135deg,#2563eb,#22d3ee)}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.16)}
+  .grid{display:grid;gap:12px}
+  .two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .field{display:flex;gap:8px;align-items:center;padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:#10172a}
+  input,select,textarea{width:100%;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:#0f1528;color:var(--text);padding:10px}
+  input[type=range]{border:0}
+  .small{font-size:12px;color:#8ea0c9}
+  .hidden{display:none}
+  .kpi{display:flex;gap:10px;flex-wrap:wrap}
+  .kpi .v{padding:8px 10px;border-radius:10px;background:#111a2f;border:1px solid rgba(255,255,255,.08)}
+  .videoWrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.12)}
+  video,canvas{display:block;width:100%;height:auto}
+  .badge{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border-radius:999px;background:#12203a;border:1px solid rgba(255,255,255,.1)}
+  .target{height:160px;border-radius:14px;background:#0f172a;border:1px dashed #334155;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .target.go{background:#0ea5e9}
+  .target.tap{background:#10b981}
+  .vfq-item{padding:10px;border-radius:10px;background:#10172a;border:1px solid rgba(255,255,255,.08)}
+  .vfq-item h4{margin:0 0 6px}
+  .btn.circle{border-radius:9999px;height:64px;width:64px;display:flex;align-items:center;justify-content:center}
+
+  /* VFQ VAS 전용 레이아웃 */
+  .question-block{
+    margin: 18px -6px 12px;   /* 좌우만 확장 (원치 않으면 -6px -> 0) */
+    padding: 8px 12px 0px;  /* 좌우 padding 약간 증가 */
+    border-radius: 10px;
+    background:#10172a;
+    border:1px solid rgba(255,255,255,.08);
+  }
+
+  /* ===== 예시 블록(Example) 전용 ===== */
+.question-block.example{
+  background: rgba(239,68,68,.10);
+  border: 1px solid rgba(239,68,68,.35);
+  margin: 10px -6px 10px;     /* 기존 question-block보다 작게 */
+  padding: 8px 12px 10px;     /* 내부도 살짝 압축 */
+}
+
+.question-block.example .question-title{
+  font-weight: 800;
+  color: #ffe4e6;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.vas-canvas.example{
+  border-color: rgba(239,68,68,.45);
+}
+
+.exampleNote{
+  margin: 4px 0 10px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(2,6,23,.35);
+  border: 1px dashed rgba(255,255,255,.18);
+  color: rgba(255,228,230,.95);
+  font-size: 14.5px;
+  font-weight: 800;
+}
+
+/* 예시용 캔버스(마커 높이 줄이기) */
+.vas-canvas.example{
+  /* createVAS에서 높이를 줄이므로 여기선 여백/테두리만 가볍게 */
+  border-color: rgba(249,115,22,.55);
+  background: rgba(2,6,23,.9);
+}
+  
+  .question-title{
+    font-size: 0.95rem;
+    margin: 0 0 6px;
+    font-weight: 600;
+  }
+  .vas-score{
+    font-size: 0.8rem;
+    margin-top: 4px 0 0 0;    /* 위 4px, 아래 0 */
+    text-align: right;
+    color: var(--muted);
+  }
+  .vas-canvas{
+    width: 100%;
+    height: auto;         /* 세로 자동 */
+    border-radius: 8px;
+    margin-top: 8px;
+    border:1px solid rgba(148,163,184,.6);
+    background:#020617;
+    display:block;
+    margin-left: 0;      /* 왼쪽 정렬 느낌 유지 */
+    margin-right: auto;
+  }
+
+/* VFQ 카드만 양쪽 여백을 조금 줄여서 더 넓게 사용 */
+#screen_vfq {
+  margin-left: -4px;
+  margin-right: -4px;
+}
+
+/* VFQ 카드 내부 padding 줄여서 문항/캔버스 폭 확보 (핵심) */
+#screen_vfq.card{
+   padding-left: 10px;
+   padding-right: 10px;
+}
+
+/* 동의 화면도 VFQ와 동일한 좌우 padding */
+#screen_consent.card{
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+  /* === iOS Safari 레이아웃/글자 깨짐 보정 === */
+  html { -webkit-text-size-adjust: 100%; }
+  /* 한국어 줄바꿈 안정화 */
+  p, .field label { word-break: keep-all; overflow-wrap: anywhere; }
+  /* 입력요소 확대 방지 (iOS는 16px 미만이면 자동 줌) */
+  input, select, textarea { font-size: 16px; }
+  /* 작은 화면에서는 2열 → 1열로 변경해 텍스트 폭 확보 */
+  @media (max-width: 430px) {
+    .wrap { padding: 14px; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 18px; }
+    p  { font-size: 15px; }
+    .two { grid-template-columns: 1fr; }
+    .field { align-items: flex-start; }
+    .field label { display: block; }
+  }
+  /* 노치(Safe Area) 대응 */
+  body { padding-top: env(safe-area-inset-top); }
+
+  /* 체크 동의 레이아웃 — iOS에서도 자연 줄바꿈 */
+  .field.checkbox{display:grid;grid-template-columns:auto 1fr;align-items:start;column-gap:8px}
+  .field.checkbox input[type="checkbox"]{margin-top:6px}
+  .field.checkbox label{display:block;white-space:normal;word-break:keep-all;overflow-wrap:anywhere;line-height: inherit;}
+
+  /* ===== Consent v2 (요약+상세+체크박스) ===== */
+#screen_consent h1{
+  font-size:24px;
+  margin-bottom:8px;   /* 기본 여백 줄이기 */
+}
+
+#screen_consent p  { font-size: 15.5px; line-height: inherit; }
+#screen_consent .small { font-size: 13.5px; }
+
+.consentHeader{
+  display:flex; flex-direction:column; gap:8px;  /* 10 → 6 */
+}
+.consentMeta{
+  display:flex; flex-wrap:wrap; gap:8px;
+}
+
+/* 메타정보(연구과제명/기간/소요시간) 한 박스로 합치기 */
+.metaBox{
+  width:100%;
+  padding:6px 12px 4px;   /* 상·하 더 압축 */
+  border-radius:14px;
+  background:#12203a;
+  border:1px solid rgba(255,255,255,.10);
+  color:#d6e2ff;
+  font-size:15px;
+  line-height: inherit;
+  word-break: keep-all;
+  overflow-wrap: anywhere; 
+}
+.metaBox > div{
+  padding:6px 0;   
+  border-top:1px solid rgba(255,255,255,.08);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.metaBox > div:first-child{
+  border-top:0;
+  padding-top:0;
+}
+/* metaBox 마지막 줄(소요시간) 아래 여백만 줄이기 */
+.metaBox > div:last-child{
+  padding-bottom: 0;   /* 기존 6px → 0 */
+}
+.metaBox b{
+  display:inline-block;
+  min-width:78px;          /* 라벨 정렬(원하면 70~90 조절) */
+  color:#e6ebff;
+}
+
+.consentSummary{
+  margin-top: 12px;   /* 기존 0 → 14px (12~16 사이에서 취향 조절) */
+  padding:12px;
+  border-radius:14px;
+  background:#0f172a;
+  border:1px solid rgba(255,255,255,.10);
+}
+.summaryHead{
+  margin:0 0 6px;
+}
+.summaryHead .consentSubTitle{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+/* consentSummary 안 첫 문단(본 연구는~) 여백 제어 */
+.consentSummary p{
+  margin: 0 0 18px;   /* 아래 간격 추가 */
+}
+.consentSummary ul{
+  margin: 0 0 0 12px;   /* 18px → 12px : 들여쓰기 줄이기 */
+  padding-left: 0;        /* 기본 padding 제거 */
+}
+.consentSummary li{
+  margin: 5px 0;          /* 6px → 5px */
+  color: var(--muted);
+  font-size: 15px;
+}
+.consentSummary .excludeItem{
+  margin-top: 14px;     /* 위 리스트와 거리 */
+  padding-top: 14px;    /* 점선과 텍스트 거리 */
+  border-top: 1px dashed rgba(255,255,255,.15);
+  color: var(--muted);
+  font-size: 14px;
+}
+.consentWarn{
+  margin-top: 14px;     /* 제외 대상과 더 분리 */
+  margin-bottom: 2px;  /* 아래 회색 박스와 거리 */
+  padding:5px 12px 5px;
+  border-radius:12px;
+  background:rgba(239,68,68,.08);
+  border:1px solid rgba(239,68,68,.35);
+  color:#ffd1d1;
+  font-size:14px;
+}
+.consentSubTitle{
+  margin: 0 0 14px;   /* 6px → 14px */
+  line-height: 1.25;   /* 제목 줄 높이 타이트 */
+  font-size: 16.8px;      /* 본문보다 살짝 큼 */
+  font-weight: 700;
+  color: #e6ebff;
+}
+.detailsBox{
+  margin-top: 4px;  /* 10px → 6px → 4px */
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.10);
+  background:#0f1528;
+}
+.detailsBox summary{
+  position: relative;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+
+  /* ✅ 추가 */
+  flex-wrap: nowrap;        /* 줄바꿈 방지 */
+  min-width: 0;             /* 말줄임 적용을 위해 필요 */
+
+  cursor:pointer;
+  padding:12px 12px 12px 12px;   /* 오른쪽 여백 줄이기 */
+  font-weight:700;
+  color:#e6ebff;
+  font-size: 16.8px;      /* 15.5 → 16.8 (원하면 16~17.5 사이 조절) */
+  line-height: 1.25;      /* 글자 커져도 줄간격 과하지 않게 */
+  list-style:none;
+}
+/* details 접힘/펼침 상태 아이콘(▼/▲) 표시 */
+/* (교체) 기존 오른쪽 고정 화살표 제거 */
+.detailsBox summary::after{
+  content:none;
+}
+
+/* 제목 옆에 화살표 표시 */
+.detailsBox summary .sumTitle{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+
+/* ✅ 추가: 제목은 남는 공간만 쓰고 말줄임 */
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ✅ 배지는 오른쪽 끝에 고정 */
+.detailsBox summary #badge_full{
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.detailsBox summary .sumTitle::after{
+  content:"▼";
+  font-size: 14px;
+  color: rgba(230,235,255,.85);
+}
+
+.detailsBox[open] summary .sumTitle::after{
+  content:"▲";
+}
+.detailsBox summary::-webkit-details-marker{display:none;}
+.detailsInner{
+  padding:12px;
+  border-top:1px solid rgba(255,255,255,.08);
+  color: var(--muted);
+  font-size: 14.8px;
+  line-height: 1.35;      /* 1.65 -> 1.35 */
+  word-break: normal;         /* keep-all 해제 */
+  overflow-wrap: break-word;  /* 긴 문자열만 필요 시 끊기 (호환 좋음) */
+  hyphens: auto;              /* 영문 단어 줄바꿈 자연스럽게 (지원 브라우저에서만) */
+}
+.detailsInner h3{
+  margin: 10px 0 4px;   /* 기존 10px 0 6px → 아래 간격 4px로 축소 */
+  font-size:15.5px;
+  color:#e6ebff;
+  margin-top: 30px;
+  margin-bottom: 6px;
+}
+.detailsInner h3:first-of-type{
+  margin-top: 12px;   /* 또는 10~14px 취향 */
+}
+/* h3 바로 다음 본문 시작 간격 */
+.detailsInner h3 + p,
+.detailsInner h3 + ul,
+.detailsInner h3 + ol{
+  margin-top: 6px;
+}
+.detailsInner ul,
+.detailsInner ol{
+  margin: 4px 0 0 0;    /* 6 -> 4 */
+  padding-left: 18px;     /* 기본 들여쓰기만 남김 (원하면 12~18 조절) */
+}
+
+.detailsInner li{
+  margin: 4px 0;        /* 5 -> 3 */
+  line-height: 1.4;     /* 1.5 -> 1.4 */
+}
+/* 본문 문단 */
+.detailsInner p{
+  text-align: left;           /* justify 금지 */
+  margin: 0 0 10px;        /* 6px -> 4px (문단 간격도 같이 살짝 압축) */
+  word-break: normal;
+  overflow-wrap: break-word;
+  line-height: inherit;
+}
+
+/* ===== 연구 설명문: 2번 항목 하단 주석 문구만 축소 ===== */
+#details_full .detailsInner p.small{
+  font-size: 12.8px;      /* 기존 small(13.5px) → 조금만 축소 */
+  line-height: 1.25;      /* 줄간격도 약간 타이트 */
+}
+
+/* 동의서 섹션 박스(옅은 박스) */
+.sectionBox{
+  margin-top: 12px;
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.10);
+  background:#0f1528;
+}
+
+/* 제목줄: 선 없애고, 좌측 제목 + 우측 배지 */
+.sectionHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+
+  padding:12px 12px;
+  font-weight:800;
+  color:#e6ebff;
+  font-size:16.8px;
+  line-height:1.25;
+
+  border-bottom: 0;           /* 여기서 옅은 직선 제거 */
+}
+
+/* 본문 영역 */
+.sectionBody{
+  padding:12px;
+  border-top: 0;              /* 안전차원: 혹시 있으면 제거 */
+}
+.sectionBody .detailsInner{
+  padding:0;                 /* 기존 detailsInner 패딩과 중복 방지 */
+  border-top:0;
+}
+
+/* 상태 배지 공통 */
+.badgeTag{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12.5px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+/* 요약본 */
+.badgeTag.summary{
+  color:#dbe6ff;
+  background: rgba(148,163,184,.14);
+  border:1px solid rgba(148,163,184,.30);
+}
+
+/* 필수 확인 */
+.badgeTag.required{
+  color:#ffe4e6;
+  background: rgba(244, 63, 94, .16);
+  border: 1px solid rgba(244, 63, 94, .45);
+}
+
+/* 확인 완료 */
+.badgeTag.done{
+  color:#dcfce7;
+  background: rgba(16,185,129,.12);
+  border:1px solid rgba(16,185,129,.35);
+}
+
+/* 우측 '필수 확인' 배지 */
+.requiredBadge{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12.5px;
+  font-weight:800;
+  color:#e6fbff;
+  background: rgba(34,211,238,.12);
+  border:1px solid rgba(34,211,238,.35);
+  white-space:nowrap;
+}
+
+.consentChecks{
+  margin-top:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.checkRow{
+  display:grid;
+  grid-template-columns: 22px 1fr;
+  gap:10px;
+  align-items:flex-start;
+  padding:10px 10px;
+  border-radius:12px;
+  background: rgba(15, 23, 42, 0.55);              /* 더 어두운 바탕 */
+  border: 1px solid rgba(34, 211, 238, 0.14);      /* 테두리도 살짝 다운 */
+}
+
+  /* 체크박스 폭 조정 규칙은 밖에 단독으로 */
+  #screen_consent #consent_checks_v3 .checkRow{
+  grid-template-columns: 18px 1fr; /* 22px → 18px */
+  gap: 8px;                        /* 10px → 8px */
+  }
+
+.checkRow input[type="checkbox"]{
+  width:18px; height:18px;
+  margin-top:2px;
+}
+.checkRow label{
+  line-height: 1.45;     /* 가독성 보완 */
+  color: #d6f4ff;
+  word-break: keep-all;
+  overflow-wrap:anywhere;
+  display:block; /* 이미 아래에 따로 있으니 여기서 합쳐도 됨 */
+}
+
+.finalAgree{
+  background: rgba(15, 23, 42, 0.72);              /* 첫번째만 아주 살짝 더 진하게 */
+  border: 1px solid rgba(34, 211, 238, 0.22);
+}
+/* 첫번째만 label 자체에 폰트 주지 않기 (ckTitle/ckBody 규칙을 따르게) */
+#screen_consent #consent_checks_v3 .finalAgree label{
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
+.consentFormGrid{
+  margin-top:10px;
+}
+
+/* 버튼 아래 미완료 문장 간격 + 하단 여백 */
+#screen_consent #consentHint{
+  margin-top: 10px;      /* 버튼과 거리 */
+  margin-bottom: 10px;   /* 페이지 아래쪽과 거리 */
+  line-height: 1.4;
+}
+
+/* ===== 1페이지(동의) 생년월일/성별 입력칸: 라벨 가운데 정렬 느낌 ===== */
+#screen_consent .consentFormGrid .field{
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 라벨(첫번째 자식: span)을 가운데 정렬처럼 */
+#screen_consent .consentFormGrid .field > span{
+  text-align: center;
+  line-height: 1.2;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* YYYY-MM-DD (small)도 가운데 */
+#screen_consent .consentFormGrid .field > span .small{
+  display: inline-block;
+  margin-top: 4px;
+}
+
+@media (max-width: 430px){
+  #screen_consent h1 { font-size: 22px; }
+  #screen_consent p  { font-size: 15px; }
+  .detailsInner{ font-size: 14.5px; }
+}
+/* ===== 1페이지(동의 화면) 전체 줄간격 기준값 ===== */
+#screen_consent{
+  line-height: 1.35;  /* 1.30~1.40 사이 취향 */
+}
+
+/* 동의 화면 내부 텍스트 요소는 부모값을 따라가게 */
+#screen_consent p,
+#screen_consent li,
+#screen_consent label,
+#screen_consent .small{
+  line-height: inherit;
+}
+
+/* 동의서 박스만 살짝 강조 */
+#consent_section{
+  background: rgba(34,211,238,.06);               /* 아주 약한 강조 */
+  border: 1px solid rgba(34,211,238,.22);         /* 테두리 톤업 */
+}
+#consent_section .sectionHead{
+  background: rgba(34,211,238,.04);               /* 헤더도 아주 약하게 */
+}
+
+.miniTag{
+  display:inline-flex;
+  align-items:center;
+  padding:2px 8px;
+  margin-right:6px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  color:#e6fbff;
+  background: rgba(34,211,238,.10);
+  border:1px solid rgba(34,211,238,.28);
+  vertical-align:middle;
+}
+
+.ckTitle{
+  font-weight:800;
+  font-size:15.5px;
+  color:#e6fbff;
+  margin:0 0 6px 0;
+  line-height:1.25;
+}
+
+.ckBody{
+  font-size:15.5px;
+  color:#dbe6ff;
+  line-height:1.35;
+}
+
+.ckNote{
+  margin-top:6px;
+  color:#b7c6ea;
+}
+
+/* ===== 동의서 1~7항: 항목(문장) 사이 간격 ===== */
+#screen_consent #consent_agree_text ol li{
+  margin-bottom: 10px;   /* 8~14px 사이 취향 */
+}
+#screen_consent #consent_agree_text ol li:last-child{
+  margin-bottom: 0;
+}
+
+/* ===== 1페이지 동의서 체크박스(제목/본문/추가안내) 글자 크기 최종 제어 ===== */
+#screen_consent #consent_checks_v3 .ckTitle{ font-size: 14px; }
+#screen_consent #consent_checks_v3 .ckBody { font-size: 13px; }
+#screen_consent #consent_checks_v3 .ckNote { font-size: 12.2px; }
+
+/* ===== 동의서 본문 ↔ 체크박스 구분선 ===== */
+#screen_consent #consent_checks_v3{
+  margin-top: 18px;       /* 체크박스 전체를 살짝 아래로 */
+  padding-top: 14px;      /* 구분선과 첫 체크박스 사이 여백 */
+  position: relative;
+}
+
+#screen_consent #consent_checks_v3::before{
+  content:"";
+  position:absolute;
+  left:0; right:0;
+  top:0;
+  border-top: 1px dashed rgba(255,255,255,.16);
+}
+
+#screen_vfq h2{
+  text-align: center; 
+  font-size: 24px;
+  margin-top: 20px;     /* 제목과 상단 여백 조정 이 줄 추가 */  
+  margin-bottom: 24px;   /* 기본보다 더 넓게 */
+}
+@media (max-width:430px){
+  #screen_vfq h2{ font-size:22px; }
+}
+
+#screen_vfq p{
+  font-size: 15.5px;
+  line-height: 1.5;
+}
+
+/* 설문 시작 문구(연구용: 조용한 전환) */
+.vfqStart{
+  margin: 18px 0 10px;
+  padding: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* 위아래 점선 두 줄(구분만) */
+.vfqStart::before,
+.vfqStart::after{
+  content:"";
+  display:block;
+  border-top:1px dashed rgba(255,255,255,.25);
+  margin:10px 0;
+}
+
+/* 굵게 표시한 ‘현재(지금)’도 튀지 않게 */
+.vfqStart b{ 
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* VFQ 시작 안내(총 문항/소요시간) 가독성 업 */
+#screen_vfq p.small{
+  font-size: 14.5px;
+  color: rgba(230,235,255,.88);
+}
+@media (max-width:430px){
+  #screen_vfq p.small{ font-size: 14px; }
+}
+
+/* ===== VFQ 설문 시작 전 구분선 ===== */
+.vfqDivider{
+  margin: 18px 0 14px;
+  border: 0;
+  border-top: 1px dashed rgba(255,255,255,.25);
+}
+
+/* 설문 시작 안내를 "동의서 단락"처럼 아주 약하게 구분 */
+.vfqIntroBox{
+  margin: 10px 0 14px;
+  padding: 12px 12px;
+  border-radius: 14px;
+  background: rgba(34,211,238,.06);         /* ✅ 아주 옅은 색 */
+  border: 1px solid rgba(34,211,238,.16);   /* ✅ 얇고 은은한 테두리 */
+}
+
+/* 예시/설문 점수는 작게 (테스트용) */
+#screen_vfq .vas-score{
+  font-size: 12.5px;
+  color: rgba(166,178,209,.9);
+  margin-top: 4px;
+  text-align: right;
+}
+
+@media (max-width:430px){
+  #screen_vfq .vas-score{
+    font-size: 12px;
+  }
+}
+
+/* [예시] 설명 문구 크기 줄이기 */
+#screen_vfq .exampleNote{
+  font-size: 12.5px;
+  line-height: 1.25; 
+}
+
+/* [예시] 점수와 안내문 사이 여백 줄이기 */
+#screen_vfq .question-block.example .vas-score{
+  margin-bottom: 2px;
+}
+#screen_vfq .question-block.example .exampleNote{
+  margin-top: 2px;         /* 점수와 안내문 사이 */  
+}
+
+/* [예시] 붉은 박스 전체 높이 줄이기 */
+.question-block.example{
+  padding: 8px 12px 0px;
+  margin: 8px -6px 8px;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/*  VFQ 섹션을 동의서(#consent_section)와 동일 톤으로 */
+#vfq_section{
+  margin-left: 0;
+  margin-right: 0;
+  background: rgba(34,211,238,.06);        /* 동의서와 동일 */
+  border: 1px solid rgba(34,211,238,.22);  /* 동의서와 동일 */
+  border-radius: 14px;
+  overflow: hidden;                         /* sectionBox 느낌 유지 */
+}
+
+#vfq_section .sectionHead{
+  background: rgba(34,211,238,.04);        /* 동의서 헤더와 동일 */
+  color: #e6ebff;
+  font-weight: 800;
+}
+
+#vfq_section .sectionBody{
+  background: transparent;                  /* 바디는 기본 카드톤이 보이게 */
+}
+
+/* VFQ 상단 안내문: 핵심만 눈에 들어오게 */
+#screen_vfq > p{
+  font-size: 16px;
+  line-height: 1.65;
+  color: rgba(166,178,209,.95);
+}
+#screen_vfq > p b{
+  color: #ffffff;
+}
+
+/* VFQ 전체 박스 (동의서 느낌) */
+.vfqSectionBox{
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(34,211,238,.06);
+  border: 1px solid rgba(34,211,238,.22);
+}
+
+/* 섹션 박스 안의 문항들은 테두리/배경을 조금 덜 튀게 */
+#vfq_section .question-block{
+  background: rgba(15,23,42,.55);
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+#vfqExampleMount{
+  margin-top: 20px;     /* 안내문과 예시 사이 */
+  margin-bottom: 30px;  /* 예시와 설문 섹션 사이 */  
+}
+
+/* VFQ 섹션 헤더 텍스트 가운데 정렬 */
+#vfq_section .sectionHead{
+  justify-content: center;
+  text-align: center;
+}
+#vfq_section .sectionHead > span{
+  width: 100%;
+  text-align: center;
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- 동의/안내 페이지 -->
+  <div class="card" id="screen_consent">
+  <div class="consentHeader">
+    <h1>연구대상자 설명문 및 동의서</h1>
+
+<div class="consentMeta">
+  <div class="metaBox">
+    <div><b>연구과제명</b> K-VFQ 개발·검증 및 스마트폰 자가측정</div>
+    <div><b>연구기간</b> IRB 승인일(25.11.12) ~ 1년 이내</div>
+    <div><b>소요시간</b> 설문(17문항) + 자가측정 : 약 20–25분</div>
+  </div>
+</div>
+
+
+    <!-- 요약(항상 표시) -->
+    <div class="consentSummary">
+      <div class="summaryHead">
+  <h2 class="consentSubTitle" style="margin:0;">
+    1. 연구대상자 설명문
+    <span class="badgeTag summary">요약본</span>
+  </h2>
+</div>
+
+  
+      <p>
+        본 연구는 디지털 기기 사용 환경에서의 시각 피로를 체계적으로 평가하기 위한
+        한국어판 Visual Fatigue Questionnaire(K-VFQ)를 개발·검증하고,
+        스마트폰 기반 시기능 자가측정을 통해 주관적 피로도와 생리적 지표 간의 관계를 탐색하는 연구입니다.
+      </p>
+      <ul>
+        <li><b>진행 내용 :</b> K-VFQ 17문항(0–100, 슬라이더) 설문 + (선택)자가측정(PD, NPC, NPA, 반응속도)</li>
+        <li><b>중단 가능 :</b> 참여는 자발적이며 언제든 중단/철회할 수 있고 불이익이 없습니다.</li>
+        <li><b>카메라 :</b> 자가측정에는 전면 카메라 접근 권한이 필요하나, <b>영상·사진·음성은 저장되지 않습니다</b>.</li>
+        <li><b>저장 데이터 :</b> 참여자 분류를 위한 생년월일 및 성별, 설문 결과, 자가측정 수치만 연구 목적으로 저장됩니다.</li>
+        <li class="excludeItem"> <b>제외 대상 :</b><br> <b>의사로부터</b> 시기능 이상을 <b>진단받은 자</b>(사시·약시·조절이상·안구운동장애 등)<br><b>최근 3개월 이내</b> 안과 수술 또는 급성 안질환자,<br>임산부(생리적 변화로 인한 영향), 미성년자, 동의 능력이 제한된 취약대상자(시각·지적·정신적 장애 등). </li>
+      </ul>
+
+      <div class="consentWarn">
+        ※ 전면 카메라 접근 권한 허용은<br> <b>거리 및 눈의 위치를 계산하기 위함</b>으로,<br> <b>영상·사진·음성은 절대 저장되지 않습니다.</b><br> 카메라 권한 거부 시 <b>설문만 진행</b>할 수 있습니다.
+      </div>      
+    </div>
+
+    <!-- 전체 설명문(접기/펼치기) -->
+    <details class="detailsBox" id="details_full">
+    <summary>
+      <span class="sumTitle">2. 연구 설명문 전체 보기</span>
+    <span class="badgeTag required" id="badge_full">필수 확인</span>
+  </summary>
+  <div class="detailsInner">
+      
+        <h3>1. 연구의 배경과 목적</h3>
+        <p>
+          최근 근거리 시각 작업이 일상화되면서 안정피로에 대한 관심이 높아지고 있으며,
+          장시간 작업이 조절 및 폭주 기능 저하와 관련된다고 보고되고 있습니다.<br>
+          본 연구는 한국어판 시각 피로 설문(K-VFQ)을 개발·검증하고,
+          스마트폰 기반 시기능 자가측정을 통해 주관적 피로도와 생리적 지표 간의 상관관계를 탐색하고자 합니다.
+        </p>
+
+        <h3>2. 연구 참여 대상</h3>
+        <ul>
+          <li>대상: 만 19세 이상 45세 이하 성인 중 한국어 이해 및 스마트폰 참여 가능자</li>
+          <li>제외: 사시/약시/조절이상 등 시기능 이상을 진단받은 자, 최근 3개월 이내 안과 수술 또는 급성 안질환자, 임산부, 미성년자, 취약대상자 등</li>
+        </ul>
+        <p class="small" style="margin-top:8px;">
+          * 대학(원)생의 연구 참여는 수업/성적/학업 평가와 무관합니다.
+        </p>
+
+        <h3>3. 연구 방법</h3>
+        <ol>
+          <li>K-VFQ 설문 : 링크를 통해 17문항(0–100) 응답 (약 5–10분)</li>
+          <li>설문+자가측정 : 설문(17문항) + 자가측정(PD, NPC, NPA, 반응속도 등) 진행 (총 20–25분)</li>
+          <li>전면 카메라 권한 승인 : 자가측정 시 필요할 수 있으며, 승인 거부 시 설문만 완료 가능합니다.</li>
+        </ol>
+
+        <h3>4. 중도탈락(참여 철회) 및 데이터 처리</h3>
+        <p>
+          언제든 참여 철회 가능하며 불이익이 없습니다.
+          <br>식별 정보(연락처 등) 수집 시 즉시 분리·암호화 관리하며,
+          철회 요청 시 식별 정보는 영구 삭제/파쇄합니다.
+          참여 철회 시 <br>이미 수집된 비식별화된 데이터(설문 및 수치)는 통계에 사용될 수 있으나,
+          참여자가 ‘모든 데이터 삭제’를 명시적으로 요청할 경우 전체 데이터를 삭제합니다.
+        </p>
+
+        <h3>5. 위험요소</h3>
+        <p>
+          온라인 설문 및 자가측정 과정에서 일시적인 눈의 피로감/건조감/흐림/초점 불편감이 있을 수 있으며,
+          불편 시 언제든 중단할 수 있습니다. 반응속도 측정 시 강한 광자극은 사용하지 않습니다.
+          <br><b>카메라 접근</b>은 <b>거리 및 위치 계산 목적</b>이며, <b>영상·이미지·음성은 저장되지 않습니다.</b>
+        </p>
+
+        <h3>6. 개인정보 및 비밀 보장</h3>
+        <p>
+          <b>수집 항목 : 생년월일, 성별, 설문 및 자가측정 결과(필요시 대면 측정 결과).</b>
+          <br>데이터는 접근 권한이 제한된 보안 환경에 저장되며 연구 종료 후 3년 보관 후 폐기됩니다.
+          <br>제3자 제공은 원칙적으로 없으나, IRB가 절차/신뢰성 검증을 위해 열람을 요청할 경우, 익명화 상태로 제공될 수 있습니다.
+        </p>
+
+        <h3>7. 연구 문의</h3>
+        <p>
+          본 연구 설명문은 언제든지 다시 열람할 수 있으며, 궁금한 사항은 연구자에게 문의할 수 있습니다.
+          <br>요청 시 연구대상자 설명문의 사본을 제공받을 수 있습니다.
+          <br><br>담당 연구원 : 최유나 (ynot2592@gmail.com)
+        </p>
+      </div>
+    </details>
+
+    <!-- =========================
+     ✅ 동의서 섹션 (고정 박스)
+     ========================= -->
+<div class="sectionBox" id="consent_section">
+
+  <!-- 박스 제목 -->
+  <div class="sectionHead">
+  <span>3. 연구대상자 동의서</span>
+</div>
+
+  <div class="sectionBody">
+
+    <!-- (1) 동의서 문항(1~7) -->
+    <div class="detailsInner" id="consent_agree_text">
+      <ol style="margin:6px 0 0 18px; padding:0;">
+        <li>나는 본 연구의 설명문을 읽었으며, 연구의 목적과 절차에 대해 충분히 안내받았고, 궁금한 사항은 언제든지 연구자에게 문의할 수 있음을 이해하였습니다.</li>
+        <li>나는 본 연구 참여로 인해 발생할 수 있는 위험과 이득에 대해 연구대상자 설명문을 통해 충분히 안내받았으며, 궁금한 사항이 있을 경우 연구자에게 문의할 수 있음을 이해하였습니다.</li>
+        <li>나는 본 연구에 참여하는 것에 대하여 자발적으로 동의합니다.</li>
+        <li>나는 이 연구에서 얻어진 나에 대한 정보를 현행 법률과 기관생명윤리위원회 규정이 허용하는 범위 내에서 연구자가 수집하고 처리하는 데 동의합니다.</li>
+        <li>나는 담당 연구자나 위임 받은 대리인이 연구를 진행하거나 결과를 관리하는 경우와 보건 당국, 학교 당국 및 기관생명윤리위원회가 실태 조사를 하는 경우, 비밀로 유지되는 나의 개인 신상 정보를 직접적으로 열람하는 것에 동의합니다.</li>
+        <li>나는 언제라도 연구 참여를 철회할 수 있으며, 이러한 결정이 나에게 어떠한 불이익도 되지 않음을 알고 있습니다.</li>
+        <li>나는 본 연구 설명문을 언제든지 다시 열람할 수 있으며, 요청 시 연구대상자 설명문의 사본을 제공받을 수 있음을 안내받았습니다.</li>
+      </ol>
+
+      <p class="small" style="margin-top:14px;">
+        * 문의 : 담당 연구원 최유나 (ynot2592@gmail.com)
+      </p>
+    </div>
+
+    <!-- (2) 체크박스 3개 -->
+    <div class="consentChecks" id="consent_checks_v3" style="margin-top:12px;">
+      <div class="checkRow finalAgree">
+        <input id="c_main" type="checkbox" />
+        <label for="c_main">
+          <div class="ckTitle">[ 연구 참여 동의(서명) ]</div>
+          <div class="ckBody">
+            본인은 위 동의서(1~7항) 내용을 모두 확인하였으며, 본 연구에 자발적으로 참여하는 것에 동의합니다.
+          <div class="small ckNote">(종이 동의서의 성명/서명/서명일에 해당)</div>           
+          </div>
+        </label>
+      </div>
+
+      <div class="checkRow">
+        <input id="c_esign" type="checkbox" />
+        <label for="c_esign">
+          <div class="ckTitle">[ 전자 동의 효력 ]</div>
+          <div class="ckBody">
+            본 온라인 설문에서 위의 <b>[ 연구 참여 동의 (서명) ]</b>에 체크 후 다음 단계로 진행하는 시점이 전자 서명 및 동의 효력 발생으로 간주됨에 동의합니다.
+          </div>
+        </label>
+      </div>
+
+      <div class="checkRow">
+        <input id="c_camera" type="checkbox" />
+        <label for="c_camera">
+          <div class="ckTitle">[ 전면 카메라 권한 승인 관련 내용 ]</div>
+          <div class="ckBody">
+          <b>자가측정 참여자의 경우</b> 카메라 권한 승인 시, 카메라는 <b>거리·눈의 위치 계산을 위한 용도로만 사용</b>되며,
+          <b>영상·사진·음성은 절대 저장 및 수집되지 않음</b> 이해하고 동의합니다.
+          <div class="small ckNote">※ <b>다음 페이지에서 카메라 권한을 거부할 수 있습니다.</b> 거부 시에는 설문만 진행할 수 있으며, 자가측정은 제한됩니다.</div>            
+          </div>
+        </label>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+    <!-- 기본 정보 -->
+    <div class="grid two consentFormGrid">
+      <div class="field">
+        <span>생년월일<br><span class="small">(YYYY-MM-DD)</span></span>
+        <input id="birth" type="date"/>
+      </div>
+      <div class="field">
+        <span>성별</span>
+        <select id="sex">
+          <option value="">선택</option>
+          <option value="M">남</option>
+          <option value="F">여</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="btn_consent_start" onclick="onConsentStart()" disabled>동의하고 시작하기</button>      
+    </div>
+
+    <div id="consentHint" class="small"></div>
+  </div>
+</div>
+
+   
+  <!-- 시작 화면 -->
+  <div class="card hidden" id="screen_home">
+    <h1>안정피로 정량화 — 배포용 웹앱</h1>
+    <p>한 페이지에서 <b>VFQ 슬라이더 설문</b> + <b>전면카메라 간이 NPC</b> + <b>2분 반응속도(PVT)</b>를 진행하고 CSV로 저장합니다. <b>영상은 저장하지 않습니다.</b><br/> <b>피험자 ID</b> 와 <b>PD(동공간거리)</b> 입력 후 아래 <b>VFQ 설문 시작</b> 버튼을 눌러주세요.
+    <span class="small">※ 카메라는 보안 출처(HTTPS) 또는 로컬 서버(HTTP/localhost)에서만 동작합니다. </span></p>
+    <div class="grid two">
+      <div class="field">피험자 ID (이름) <input id="pid" placeholder="예: 19900101 또는 커스텀"/></div>
+      <div class="field">PD(동공간 거리, <b>mm</b>) <input id="pdmm" type="number" min="50" max="75" value="64"/></div>
+    </div>
+    <p class="small">※ PD는 mm 단위가 원칙입니다. <b>정확한 PD를 아는 경우</b> 입력하세요. 추후 업데이트에서 <b>기준 물체(신용카드 등 85.6 mm)</b>를 이용한 간이 PD 측정 옵션을 제공할 예정입니다.</p>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" onclick="go('screen_camtest')">카메라 권한 테스트</button>
+      <button class="btn primary" onclick="go('screen_vfq')">VFQ 설문 시작</button>
+      <button class="btn ghost" onclick="downloadTemplate()">CSV 양식</button>
+    </div>
+  </div>
+
+  <!-- 카메라 권한 테스트 화면 -->
+  <div class="card hidden" id="screen_camtest">
+    <h2>카메라 권한 테스트</h2>
+    <p class="small">아래 <b>카메라 권한 요청(전면)</b> 버튼을 눌러주세요. 전면 카메라 접근을 확인합니다. 실패 시 원인 힌트를 표시합니다. 카메라 화면이 나오면 <b>교정 화면으로 이동</b> 버튼을 눌러주시면 다음 화면으로 넘어갑니다.</p>
+    <div class="row" style="margin:8px 0">
+      <button class="btn primary" onclick="requestCam()">카메라 권한 요청(전면)</button>
+      <button class="btn" onclick="go('screen_calib')">교정 화면으로 이동</button>
+      <button class="btn ghost" onclick="go('screen_home')">처음으로</button>
+    </div>
+    <div class="videoWrap"><video id="testV" playsinline></video><canvas id="testC"></canvas></div>
+    <div class="kpi" style="margin-top:8px">
+      <div class="v">상태: <b id="camStatus">대기</b></div>
+      <div class="v">오류: <b id="camError">-</b></div>
+      <div class="v">보안: <b id="secCtx">-</b></div>
+      <div class="v">프로토콜: <b id="proto">-</b></div>
+      <div class="v">카메라 수: <b id="camCount">-</b></div>
+      <div class="v">권한상태: <b id="permState">-</b></div>
+    </div>
+  </div>
+
+    <!-- VFQ VAS 17문항 -->
+  <div class="card hidden" id="screen_vfq">
+    <h2>Visual Fatigue Questionnaire</h2>
+    <p style="font-size:14.5px;">
+      아래 항목 각각에 대해 <b>현재(지금)</b> 상태를 기준으로 응답해주세요.<br>
+      <b>점선 또는 실선 위를 터치</b>해 수직선을 표시하세요.<br>
+      표시는 <b>왼쪽 끝부터 오른쪽 끝</b>까지 <b>어느 위치에나</b> 할 수 있습니다. <b>(굵은 선 포함)</b>
+    </p>
+
+<!-- 예시는 섹션 박스 밖에 둘 자리 -->
+<div id="vfqExampleMount"></div>
+
+<!-- 설문 섹션 박스 (동의서 3번처럼) -->
+<div class="sectionBox" id="vfq_section">
+
+  <div class="sectionHead">
+    <span>K-VFQ 17</span>    
+  </div>
+
+  <div class="sectionBody">
+    <!-- ‘현재(지금)~’ 안내는 "그냥 본문"으로 -->
+    <p style="margin:0;color:var(--muted);line-height:1.55;">
+      <b style="color:var(--text);">‘현재(지금)’</b> 다음 증상 중 느껴지는 것이 있습니까?
+    </p>
+
+    <p class="small" style="margin:0 0 8px; padding-left:4px; font-size:13px; color:var(--muted); line-height:1.2;">
+     (총 17문항 / 약 5~10분 소요됩니다.) 
+    </p>
+
+    <div id="questions"></div>
+  </div>
+</div>
+
+</div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="submitVFQ">설문 완료</button>
+      <button class="btn" onclick="go('screen_calib')">다음(카메라 교정)</button>
+      <button class="btn ghost" onclick="go('screen_home')">처음으로</button>
+    </div>
+
+    <!-- 지금은 테스트용으로 점수 요약을 보여주고, 나중엔 숨겨도 됨 -->
+    <div id="vfqResult" class="small" style="margin-top:10px;white-space:pre-line;"></div>
+  </div>
+
+  <!-- 교정 -->
+  <div class="card hidden" id="screen_calib">
+    <h2>카메라 교정(40 cm)</h2>
+    <p>스마트폰을 눈앞 <b>40 cm</b> 위치에 고정해주세요. 아래 첫번째 <b>교정</b> 버튼을 눌러주세요. 버튼을 누른 후 얼굴을 인식하면 <b>픽셀 PD</b>가 표시됩니다. 안정화 후 스크롤을 내려 <b>교정</b>을 한번 더 누르고 <b>다음(NPC 측정)</b> 버튼을 눌러주세요.</p>
+    <div class="videoWrap"><video id="v" playsinline></video><canvas id="c"></canvas></div>
+    <div class="kpi" style="margin-top:8px">
+      <div class="v">pixel PD: <b id="pixPD">-</b></div>
+      <div class="v">focal_px: <b id="focal">-</b></div>
+      <div class="v">신뢰도: <b id="conf">-</b></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn primary" onclick="doCalib()">교정</button>
+      <button class="btn" onclick="go('screen_npc')">다음(NPC 측정)</button>
+      <button class="btn ghost" onclick="go('screen_home')">처음으로</button>
+    </div>
+  </div>
+
+  <!-- NPC 측정 -->
+  <div class="card hidden" id="screen_npc">
+    <h2>NPC 측정(3회)</h2>
+    <p>중앙 <b>주시 막대(얇은 빨간 선)</b>를 주시하며 스마트폰을 코 쪽으로 <b>천천히</b> 이동하세요. <b>복시(막대가 2개로 보임)가 느껴지는 순간</b> 아래 원형 버튼을 탭하면 그 순간 거리(㎝)가 기록됩니다. 정확도를 위해 <b>총 3번</b>의 측정을 하세요. 너무 빠르게 이동하면 경고가 뜹니다.</p>
+    <div class="row"><span class="badge">교정 기준 D₀ = 40 cm</span><span class="badge">PD = <b id="labPD">-</b> mm</span></div>
+    <div class="kpi" style="margin:8px 0">
+      <div class="v">실시간 추정 거리: <b id="distNow">-</b> cm</div>
+      <div class="v">pixel PD: <b id="pixPD2">-</b></div>
+      <div class="v">이동 속도: <b id="speedNow">-</b> cm/s</div>
+    </div>
+    <div class="target" id="npcTarget">
+      <div style="width:2px;height:120px;background:#ef4444;border-radius:2px"></div>
+    </div>
+    <div class="row" style="margin-top:8px;gap:16px">
+      <button class="btn primary circle" onclick="markDiplopia(1)">복시 #1</button>
+      <button class="btn primary circle" onclick="markDiplopia(2)">#2</button>
+      <button class="btn primary circle" onclick="markDiplopia(3)">#3</button>
+      <button class="btn ghost" onclick="clearNPC()">초기화</button>
+    </div>
+    <div class="small" id="speedWarn" style="color:#fca5a5;display:none">이동이 너무 빠릅니다. 1~4 cm/s 이내로 천천히 이동해주세요.</div>
+    <div class="kpi" style="margin-top:8px">
+      <div class="v">NPC1: <b id="npc1">-</b> cm</div>
+      <div class="v">NPC2: <b id="npc2">-</b> cm</div>
+      <div class="v">NPC3: <b id="npc3">-</b> cm</div>
+      <div class="v">평균: <b id="npcAvg">-</b> cm</div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" onclick="go('screen_pvt')">다음(반응속도)</button>
+      <button class="btn ghost" onclick="go('screen_home')">처음으로</button>
+    </div>
+  </div>
+
+  <!-- PVT -->
+  <div class="card hidden" id="screen_pvt">
+    <h2>반응속도(PVT) — 2분</h2>
+    <p class="small">상자가 <b>파란색</b>이 되면 가능한 빨리 탭하세요. 느린 반응(>500 ms)은 lapse로 계산됩니다. 측정 완료 후 <b>다음(CSV 저장)</b> 버튼을 눌러주세요. </p>
+    <div class="target" id="pvtBox">READY</div>
+    <div class="kpi" style="margin-top:8px">
+      <div class="v">경과: <b id="pvtElapsed">0</b>s</div>
+      <div class="v">시도: <b id="pvtTrials">0</b></div>
+      <div class="v">중앙 RT: <b id="pvtMed">-</b> ms</div>
+      <div class="v">90P RT: <b id="pvtP90">-</b> ms</div>
+      <div class="v">lapses: <b id="pvtLapse">0</b></div>
+      <div class="v">최신 RT: <b id="pvtLast">-</b> ms</div>
+    </div>
+    <div class="row" style="margin-top:8px"><button class="btn primary" onclick="startPVT()">시작</button><button class="btn ghost" onclick="finishPVT()">조기 종료</button></div>
+    <div class="row" style="margin-top:8px"><button class="btn" onclick="go('screen_export')">다음(CSV 저장)</button><button class="btn ghost" onclick="go('screen_home')">처음으로</button></div>
+  </div>
+
+  <!-- 내보내기 -->
+<div class="card hidden" id="screen_export">
+  <h2>CSV 저장</h2>
+  <p>이번 세션 데이터를 CSV로 저장하거나, 공유(전송)할 수 있어요. (카메라 영상 미저장, 생년월일/이름/pd/안정피로 설문 점수/반응속도 데이터 등 메타데이터만 저장)</p>
+
+  <!-- 인앱 브라우저 경고/안내 배너 -->
+  <div id="iabWarn" class="small hidden" style="padding:8px;border:1px solid #475569;border-radius:8px;background:#0f172a;margin-bottom:8px">
+    카카오톡/인스타 등의 인앱 브라우저에서는 저장/공유가 제한될 수 있어요.
+    <b>우측 상단 메뉴 → 기본 브라우저로 열기(안드로이드: Chrome / iPhone: Safari)</b>를 눌러 다시 시도해주세요.
+  </div>
+
+  <div class="row">
+    <button class="btn primary" onclick="downloadCSV()">CSV 저장</button>
+    <button class="btn" onclick="shareCSV()">공유(전송)</button>
+    <button class="btn" onclick="saveWithPicker()">저장 위치 선택(안드로이드)</button>
+    <button class="btn ghost" onclick="previewCSV()">미리보기</button>
+    <button class="btn ghost" onclick="copyCSV()">CSV 복사</button>
+    <button class="btn ghost" onclick="resetAll()">처음으로</button>
+  </div>
+
+  <p class="small">iPhone: 파일앱 &gt; Downloads, Android: 파일관리자 &gt; 다운로드. 인앱 브라우저에서는 저장이 표시되지 않을 수 있습니다.</p>
+</div>
+
+
+<script>
+  // ---------- 전역 상태 ----------
+// 인앱 브라우저/플랫폼 감지
+const UA = navigator.userAgent || '';
+const isKakao = /KAKAOTALK/i.test(UA);
+const isLine  = /Line\//i.test(UA);
+const isIG    = /Instagram/i.test(UA);
+const isFB    = /FBAN|FBAV/i.test(UA);
+const isInApp = isKakao || isLine || isIG || isFB;
+const isAndroid = /Android/i.test(UA);
+const isIOS = /iPhone|iPad|iPod/i.test(UA);
+
+  const S={ pid:"", pdmm:64, vfq:{}, vfqSum:0, focal_px:null, pixPD:0, distNow:NaN, npc:[null,null,null], pvt:{dur:120,start:0,elapsed:0,timer:null,phase:'idle',waitTO:null,goAt:0,rt:[],lapse:0,last:null} }
+  // '연구 설명문 전체 보기' 확인 완료 여부
+  let fullDocConfirmed = false;
+  const NPC_SPEED_MAX = 4.0; // NPC 이동 속도 경고 임계값(cm/s)
+  const screens=['screen_consent','screen_home','screen_camtest','screen_vfq','screen_calib','screen_npc','screen_pvt','screen_export']
+  function go(id){
+  screens.forEach(s=>document.getElementById(s).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  if(id==='screen_export'){
+    const b = document.getElementById('iabWarn');
+    if(b) b.classList.toggle('hidden', !isInApp);
+  }
+}
+
+
+  // ---------- VFQ VAS 17문항 (오늘 만든 캔버스 버전) ----------
+  // 이제는 항상 어두운 배경(지금 앱 디자인)에 맞게 흰색 선 사용
+  
+  function getLineColor(){ return '#ffffff'; }
+  function getDashedColor(){ return '#64748b'; } // 점선 약간 회색
+  function getTextColor(){ return '#e5e7eb'; }
+  function getHighlightColor(){ return '#f97316'; }
+
+  const vfqQuestions = [
+    "눈의 건조함:",
+    "눈물 흘림:",
+    "눈이 자극되거나, 이물감이 있거나(모래 낀 느낌 등), 화끈거림이 있다:",
+    "눈 또는 눈 주위 통증이 있다:",
+    "눈에 무거운 느낌이 있다:",
+    "글을 읽을 때 줄을 따라 읽기 어렵다:",
+    "초점을 맞추기 어렵다:",
+    "글자가 떨리거나 점프하듯 움직인다:",
+    "글자가 뿌옇게(흐리게) 보인다:",
+    "빛에 의한 눈부심:",
+    "흐릿한 시야:",
+    "겹쳐보임 혹은 물체가 두 개로 보임(복시):",
+    "두통:",
+    "뒷 목 통증:",
+    "어지러움:",
+    "메스꺼움:",
+    "정신적 피로:"
+  ];
+
+  const vfqAnswers = new Array(vfqQuestions.length).fill(null);
+  const vasItems = []; // 필요하면 나중에 redraw용으로 확장 가능 (지금은 토글에 사용)
+
+function createVAS(index, canvas, scoreElem, opts = {}) {
+  const ctx = canvas.getContext('2d');
+  const logicalWidth  = 480;
+  const logicalHeight = opts.compact ? 140 : 150;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width  = logicalWidth * dpr;
+  canvas.height = logicalHeight * dpr;
+  canvas.style.width = "100%";
+  canvas.style.height = "auto";
+  canvas.style.aspectRatio = `${logicalWidth} / ${logicalHeight}`;
+
+  //  중요: scale 누적 방지(너 코드의 ctx.scale(dpr,dpr)로는 재호출 시 깨질 수 있음)
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const leftX  = 30;
+  const rightX = logicalWidth - 30;
+  const lineY  = opts.compact ? 55 : 60;
+  const lineWidthPx = rightX - leftX;
+
+  //  presetValue가 있으면 예시 모드
+  const isExample = typeof opts.presetValue === 'number';
+  let current = isExample ? opts.presetValue : null;
+
+  if (opts.locked) canvas.style.pointerEvents = 'none';
+
+if (scoreElem && isExample) {
+  scoreElem.textContent = `예시 점수: ${current}`;
+}
+
+  function mmToX(v){
+    return leftX + (v / 100) * lineWidthPx;
+  }
+
+  function redraw(){
+    ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+    // 점선 기준선
+    ctx.strokeStyle = getDashedColor();
+    ctx.setLineDash([4,4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(leftX, lineY);
+    ctx.lineTo(rightX, lineY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 굵은 세로선 (0, 50, 100)
+    ctx.strokeStyle = getLineColor();
+    ctx.lineWidth = 2.5;
+    [0,50,100].forEach(mm => {
+      const x = mmToX(mm);
+      ctx.beginPath();
+      ctx.moveTo(x, lineY - 15);
+      ctx.lineTo(x, lineY + 15);
+      ctx.stroke();
+    });
+
+    // 얇은 세로선
+    ctx.strokeStyle = getLineColor();
+    ctx.lineWidth = 1;
+    [12.5,25,37.5,62.5,75,87.5].forEach(mm => {
+      const x = mmToX(mm);
+      ctx.beginPath();
+      ctx.moveTo(x, lineY - 7);
+      ctx.lineTo(x, lineY + 7);
+      ctx.stroke();
+    });
+
+    // 레이블
+    ctx.fillStyle = getTextColor();
+    ctx.font = "15px sans-serif";
+    ctx.textAlign = "center";
+
+    const baseY1 = lineY + 34;
+    const baseY2 = lineY + 52;
+    const baseY3 = lineY + 70;
+
+    const leftTextX  = mmToX(0) + 4;
+    const midTextX   = mmToX(50);
+    const rightTextX = mmToX(100) - 6;
+
+    ctx.fillText("전혀",       leftTextX, baseY1);
+    ctx.fillText("느껴지지",   leftTextX, baseY2);
+    ctx.fillText("않는다",     leftTextX, baseY3);
+
+    ctx.fillText("약간",       midTextX, baseY1);
+    ctx.fillText("느껴진다",   midTextX, baseY2);
+
+    ctx.fillText("매우",       rightTextX, baseY1);
+    ctx.fillText("뚜렷하게",   rightTextX, baseY2);
+    ctx.fillText("느껴진다",   rightTextX, baseY3);
+
+    // 주황 응답선(기본은 기존 굵기 유지) + 예시만 링 표시
+    if(current !== null){
+      const x = mmToX(current);
+
+      // ✅ 실제 문항은 종이 설문 느낌 유지: 기존 굵기 2
+      ctx.strokeStyle = getHighlightColor();
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x, lineY - 20);
+      ctx.lineTo(x, lineY + 20);     
+      ctx.stroke();
+
+      // ✅ 예시만 점선 링(원형 강조)
+      if(opts.markerStyle === "ring"){
+        ctx.save();
+        ctx.strokeStyle = "rgba(249, 115, 22, 0.18)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4,3]);
+        ctx.beginPath();
+        ctx.arc(x, lineY, 26, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+    }
+  }
+}
+
+ //  실제 문항: 클릭해서 선택
+  if(!isExample){    
+    canvas.addEventListener('click', (evt)=>{
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = logicalWidth / rect.width;
+      const logicalClickX = (evt.clientX - rect.left) * scaleX;
+
+      let v = (logicalClickX - leftX) / lineWidthPx * 100;
+      v = Math.max(0, Math.min(100, v));
+      v = Math.round(v);
+
+      current = v;
+      vfqAnswers[index] = v;
+      redraw();
+      if (scoreElem) scoreElem.textContent = `선택한 점수: ${v}`;
+    });
+  } else {
+    //  예시 문항: 터치/클릭 불가
+    canvas.style.pointerEvents = "none";
+    if(scoreElem) scoreElem.textContent = `예시 점수: ${current}`;
+  }
+
+  redraw();
+  vasItems.push({ redraw });
+}
+
+  // VFQ 화면 구성
+  function setupVFQ(){
+    const container = document.getElementById('questions');
+    if(!container) return;
+    container.innerHTML = "";
+
+// ===== 예시 문항을 구분선 바로 아래에 삽입 =====
+(function addExample(){
+  const block = document.createElement('div');
+  block.className = 'question-block example';
+
+  const title = document.createElement('div');
+  title.className = 'question-title';
+  title.textContent = '예시) 아래와 같이 아무 위치나 선택할 수 있습니다.';
+
+  const canvas = document.createElement('canvas');
+  canvas.className = 'vas-canvas example';
+
+  const score = document.createElement('p');
+  score.className = 'vas-score';
+
+  const note = document.createElement('p');
+  note.className = 'exampleNote';
+  note.textContent =
+    '점선 또는 실선 위 어느 위치든 터치하면 빨간 선이 생깁니다. (굵은 선 포함)';
+
+  block.appendChild(title);
+  block.appendChild(canvas);
+  block.appendChild(score);
+  block.appendChild(note);
+
+const mount = document.getElementById('vfqExampleMount');
+if(mount){
+  mount.innerHTML = "";       // 혹시 중복 생성 방지
+  mount.appendChild(block);
+}
+
+  createVAS(-1, canvas, score, {
+    presetValue: 84,
+    compact: true,
+    locked: true,
+    markerStyle: "ring"
+  });
+})();
+
+    vfqQuestions.forEach((text, idx)=>{
+      const block = document.createElement('div');
+      block.className = 'question-block';
+
+      const title = document.createElement('div');
+      title.className = 'question-title';
+      title.textContent = (idx+1) + ". " + text;
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'vas-canvas';
+
+      const score = document.createElement('p');
+      score.className = 'vas-score';
+      score.textContent = "선택한 점수: 아직 선택하지 않음";
+
+      block.appendChild(title);
+      block.appendChild(canvas);
+      block.appendChild(score);
+      container.appendChild(block);
+
+      createVAS(idx, canvas, score);
+    });
+
+    const btn = document.getElementById('submitVFQ');
+    const resultDiv = document.getElementById('vfqResult');
+
+    if(btn && resultDiv){
+      btn.onclick = ()=>{
+        const missing = [];
+        vfqAnswers.forEach((v,i)=>{ if(v===null) missing.push(i+1); });
+        if(missing.length){
+          resultDiv.textContent = "아직 응답하지 않은 문항이 있습니다: " + missing.join(", ") + "번";
+          return;
+        }
+        // 총합 계산 (0~100 스케일 합)
+        calcVFQ();
+        let txt = "각 문항의 선택한 점수(0–100 스케일):\n";
+        vfqAnswers.forEach((v,i)=>{ txt += (i+1) + "번: " + v + "\n"; });
+        txt += "\n총합: " + S.vfqSum;
+        resultDiv.textContent = txt;
+      };
+    }
+  }
+    
+  // VFQ 총합 계산: CSV에서 사용하는 값
+  function calcVFQ(){
+    S.vfqSum = vfqAnswers.reduce((sum,v)=> sum + (typeof v === 'number' ? v : 0), 0);
+  }
+
+  // ---------- 권한 테스트 ----------
+  async function requestCam(){
+    const camStatus=gid('camStatus'), camError=gid('camError');
+    const secCtx=gid('secCtx'), proto=gid('proto'), camCount=gid('camCount'), permState=gid('permState')
+    secCtx.textContent = window.isSecureContext ? 'Secure(OK)' : 'Not secure(문제)';
+    proto.textContent = location.protocol;
+    try{ const p=await navigator.permissions.query({name:'camera'}); permState.textContent=p.state }catch{ permState.textContent='unknown' }
+    try{ const devices=await navigator.mediaDevices.enumerateDevices(); camCount.textContent=devices.filter(d=>d.kind==='videoinput').length }catch{ camCount.textContent='unknown' }
+
+    camStatus.textContent='요청 중…'; camError.textContent='-'
+    try{
+      const constraints={video:{facingMode:{ideal:'user'}},audio:false}
+      const stream=await navigator.mediaDevices.getUserMedia(constraints)
+      const tv=gid('testV'); tv.srcObject=stream; await tv.play(); camStatus.textContent='전면 카메라 연결됨'
+      const tc=gid('testC'); tc.width=tv.videoWidth; tc.height=tv.videoHeight; const tctx=tc.getContext('2d');
+      ;(function draw(){ tctx.drawImage(tv,0,0,tc.width,tc.height); requestAnimationFrame(draw) })()
+    }catch(e){
+      camStatus.textContent='실패'
+      let hint=''
+      if(!window.isSecureContext && location.protocol!=='http:'){ hint='file:// 또는 비보안 출처입니다. http:// 또는 https:// 로 열어주세요.' }
+      else if(location.protocol==='http:' && !/localhost|127\.0\.0\.1/.test(location.host)){ hint='http 비보안 출처입니다. https:// 또는 http://localhost 로 열어주세요.' }
+      else { hint='브라우저 사이트 권한에서 이 도메인의 카메라를 허용하세요. 다른 앱이 카메라 점유 중인지도 확인.' }
+      camError.textContent=(e&&e.message?e.message:String(e))+' | 힌트: '+hint
+    }
+  }
+
+  // ---------- 카메라/FaceMesh 셋업 ----------
+  const video=gid('v'), canvas=gid('c'), ctx=canvas.getContext('2d'); let camera,fm
+  let lastPixPD=0, lastConf=0
+  async function setupCam(){
+    return new Promise((resolve)=>{
+      fm = new FaceMesh({locateFile:(file)=>`https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`})
+      fm.setOptions({maxNumFaces:1, refineLandmarks:true, minDetectionConfidence:0.6, minTrackingConfidence:0.6})
+      fm.onResults(onResults)
+      camera = new Camera(video,{onFrame:async()=>{await fm.send({image:video})}, width:640, height:480})
+      camera.start().then(resolve)
+    })
+  }
+  function onResults(res){
+    canvas.width=video.videoWidth; canvas.height=video.videoHeight; ctx.save(); ctx.clearRect(0,0,canvas.width,canvas.height)
+    if(res.multiFaceLandmarks && res.multiFaceLandmarks.length>0){
+      const lm=res.multiFaceLandmarks[0]
+      const L=[33,133], R=[362,263]
+      const lpt=avgPts(L.map(i=>lm[i])), rpt=avgPts(R.map(i=>lm[i]))
+      const x1=lpt.x*canvas.width, y1=lpt.y*canvas.height, x2=rpt.x*canvas.width, y2=rpt.y*canvas.height
+      const d=Math.hypot(x2-x1,y2-y1); lastPixPD=d; lastConf = 0.8
+      ctx.strokeStyle='rgba(0,255,255,.8)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke()
+    }
+    ctx.restore()
+    S.pixPD=lastPixPD
+    gid('pixPD').textContent= lastPixPD? lastPixPD.toFixed(1):'-'
+    gid('pixPD2').textContent= lastPixPD? lastPixPD.toFixed(1):'-'
+    gid('conf').textContent= lastConf.toFixed(2)
+    if(S.focal_px && S.pdmm && lastPixPD){ const Dmm=(S.focal_px*S.pdmm)/lastPixPD; S.distNow=Dmm/10; gid('distNow').textContent=S.distNow.toFixed(1) }
+    // 속도 경고
+    const now = performance.now(); S._lastT = S._lastT||now; S._lastD = S._lastD||S.distNow
+    const dt = (now - S._lastT)/1000; if(dt>0 && isFinite(S.distNow) && isFinite(S._lastD)){
+      const v = Math.abs(S.distNow - S._lastD)/dt; gid('speedNow').textContent = v.toFixed(1)
+      gid('speedWarn').style.display = (v > NPC_SPEED_MAX) ? 'block' : 'none'
+    }
+    S._lastT = now; S._lastD = S.distNow
+  }
+  function avgPts(arr){ const x=arr.reduce((a,p)=>a+p.x,0)/arr.length; const y=arr.reduce((a,p)=>a+p.y,0)/arr.length; return {x,y} }
+
+  async function doCalib(){
+    if(!video.srcObject){
+      try{ const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'}},audio:false}); video.srcObject=s; await video.play() }catch(e){ alert('카메라 접근 실패: '+(e.message||e)); return }
+    }
+    if(!fm){ await setupCam() }
+    S.pid=(gid('pid').value||'NA').trim(); S.pdmm=Number(gid('pdmm').value||64); gid('labPD').textContent=S.pdmm
+    const D0mm=400
+    if(S.pixPD>0 && S.pdmm>0){ S.focal_px=(S.pixPD*D0mm)/S.pdmm; gid('focal').textContent=S.focal_px.toFixed(1) }
+    else { alert('얼굴/눈 인식이 불안정하거나 PD가 유효하지 않습니다. 조명/정면 자세를 점검하세요.') }
+  }
+
+  // ---------- NPC 기록 ----------
+  function markDiplopia(n){
+    if(!(S.focal_px>0 && S.pdmm>0 && S.pixPD>0)){ alert('교정 후 정면 시야에서 다시 시도하세요.'); return }
+    const Dcm=S.distNow; if(!isFinite(Dcm)){ alert('거리 추정 불가'); return }
+    S.npc[n-1]=Number(Dcm.toFixed(1)); gid('npc'+n).textContent=S.npc[n-1].toFixed(1)
+    const vals=S.npc.filter(v=>v!=null); if(vals.length){ const m=vals.reduce((a,b)=>a+b,0)/vals.length; gid('npcAvg').textContent=m.toFixed(1) }
+  }
+  function clearNPC(){ S.npc=[null,null,null]; ['npc1','npc2','npc3','npcAvg'].forEach(id=>gid(id).textContent='-') }
+
+  // ---------- PVT ----------
+  const pvtBox=gid('pvtBox')
+  function startPVT(){
+    S.pvt={dur:120,start:performance.now(),elapsed:0,phase:'waiting',waitTO:null,goAt:0,rt:[],lapse:0,last:null}
+    pvtBox.textContent='WAIT'; pvtBox.className='target'
+    scheduleGo()
+    S.pvt.timer=setInterval(()=>{ const el=Math.floor((performance.now()-S.pvt.start)/1000); S.pvt.elapsed=el; gid('pvtElapsed').textContent=el; if(el>=S.pvt.dur) finishPVT() },100)
+    pvtBox.onclick=onTap
+  }
+  function scheduleGo(){ clearTimeout(S.pvt.waitTO); const d=1200+Math.random()*2300; S.pvt.waitTO=setTimeout(()=>{ S.pvt.phase='go'; S.pvt.goAt=performance.now(); pvtBox.textContent='GO!'; pvtBox.className='target go' },d) }
+  function onTap(){ if(S.pvt.phase==='go'){ const rt=Math.round(performance.now()-S.pvt.goAt); S.pvt.rt.push(rt); S.pvt.last=rt; if(rt>500) S.pvt.lapse++; pvtBox.classList.add('tap'); setTimeout(()=>pvtBox.classList.remove('tap'),150); S.pvt.phase='waiting'; pvtBox.textContent='WAIT'; pvtBox.className='target'; scheduleGo(); updatePVT() } }
+  function updatePVT(){ const arr=S.pvt.rt.slice().sort((a,b)=>a-b); const med=q(arr,0.5), p90=q(arr,0.9); gid('pvtTrials').textContent=S.pvt.rt.length; gid('pvtMed').textContent=isFinite(med)?Math.round(med):'-'; gid('pvtP90').textContent=isFinite(p90)?Math.round(p90):'-'; gid('pvtLapse').textContent=S.pvt.lapse; gid('pvtLast').textContent=S.pvt.last??'-' }
+  function q(a,p){ if(!a.length) return NaN; const pos=(a.length-1)*p; const b=Math.floor(pos); const r=pos-b; return a[b]+(a[b+1]!==undefined?(a[b+1]-a[b])*r:0) }
+  function finishPVT(){ clearInterval(S.pvt.timer); clearTimeout(S.pvt.waitTO); pvtBox.onclick=null }
+
+  // ---------- CSV ----------
+  // 공통: CSV Blob/텍스트/파일명 생성
+  function makeCSV(){
+    calcVFQ();
+    const ts = new Date().toISOString().replace(/:/g,'-');
+    const pidSafe = (S.pid || gid('pid').value || 'NA');
+    const header = ['pid','timestamp','birth','sex','pdmm','focal_px','pixPD_calib','VFQ_sum','NPC1_cm','NPC2_cm','NPC3_cm','NPC_mean_cm','RT_trials','RT_median_ms','RT_p90_ms','RT_lapses','RT_list_ms'].join(',')+'\\n';
+    const rts = S.pvt.rt.slice().sort((a,b)=>a-b);
+    const med = isFinite(q(rts,0.5))?Math.round(q(rts,0.5)):'';
+    const p90 = isFinite(q(rts,0.9))?Math.round(q(rts,0.9)):'';
+    const npcVals = S.npc.filter(v=>v!=null);
+    const npcMean = npcVals.length? (npcVals.reduce((a,b)=>a+b,0)/npcVals.length).toFixed(1):'';
+    const row = [csv(pidSafe), new Date().toISOString(), S.birth||'', S.sex||'', S.pdmm, S.focal_px?S.focal_px.toFixed(1):'', S.pixPD?S.pixPD.toFixed(1):'', S.vfqSum, S.npc[0]??'', S.npc[1]??'', S.npc[2]??'', npcMean, S.pvt.rt.length, med, p90, S.pvt.lapse, '"'+S.pvt.rt.join(' ')+'"'].join(',')+'\\n';
+    const text = header + row;
+    const blob = new Blob([text], {type:'text/csv;charset=utf-8'});
+    const filename = `fatigue_${pidSafe}_${ts}.csv`;
+    return { blob, text, filename };
+  }
+
+  // 저장(다운로드)
+  function downloadCSV(){
+    const { blob, filename } = makeCSV();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    // 사용 PID 기록(중복 방지)
+    try{
+      const used=JSON.parse(localStorage.getItem('used_ids')||'[]');
+      const pid=(S.pid||gid('pid').value||'NA');
+      if(!used.includes(pid)){ used.push(pid); localStorage.setItem('used_ids',JSON.stringify(used)) }
+    }catch{}
+    alert('다운로드 완료 — 파일앱/다운로드 폴더에서 확인하세요.');
+  }
+
+async function saveWithPicker(){
+  // File System Access API: 안드로이드 크롬 등에서 지원
+  try{
+    if(!window.showSaveFilePicker){
+      alert('이 브라우저는 저장 위치 선택을 지원하지 않습니다. 외부 브라우저(Chrome/Safari)로 열어주세요.');
+      return;
+    }
+    const { blob, filename } = makeCSV();
+    const handle = await window.showSaveFilePicker({
+      suggestedName: filename,
+      types: [{ description:'CSV file', accept: {'text/csv':['.csv']} }]
+    });
+    const writable = await handle.createWritable();
+    await writable.write(blob);
+    await writable.close();
+    alert('저장 완료! 파일 앱/다운로드 폴더에서 확인하세요.');
+  }catch(e){
+    if(e && e.name==='AbortError') return; // 사용자가 취소
+    alert('저장 위치 선택 실패: ' + (e?.message||e));
+  }
+}
+
+async function shareCSV(){
+  const { blob, text, filename } = makeCSV();
+  const file = new File([blob], filename, {type:'text/csv'});
+
+  // 1) 파일 공유 먼저 시도
+  if(navigator.canShare && navigator.canShare({ files: [file] })){
+    try{
+      await navigator.share({ title:'안정피로 측정 CSV', text:'측정 결과 CSV 파일입니다.', files:[file] });
+      return;
+    }catch(e){ /* 사용자가 취소할 수 있음 → 텍스트 폴백 시도 */ }
+  }
+  // 2) 텍스트만 공유 (인앱 브라우저에서 종종 가능)
+  if(navigator.share){
+    try{
+      await navigator.share({ title:'안정피로 측정 CSV(텍스트)', text });
+      return;
+    }catch(e){ /* 취소 가능 */ }
+  }
+  // 3) 최종 폴백: 다운로드 시도
+  downloadCSV();
+}
+
+  // 미리보기(복사/붙여넣기 용이)
+  function previewCSV(){
+    const { text, filename } = makeCSV();
+    const win = window.open('', '_blank');
+    if(!win){ alert('팝업이 차단되었습니다. 브라우저에서 팝업 허용을 켜주세요.'); return; }
+    win.document.write('<pre style="white-space:pre-wrap;word-wrap:break-word;padding:12px;background:#0f172a;color:#e6ebff;line-height:1.4">'+
+                       text.replace(/[&<>]/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;' }[s]))+
+                       '</pre>');
+    win.document.title = filename;
+  }
+
+  function csv(s){ const t=String(s).replaceAll('"','""'); return '"'+t+'"' }
+
+  // ---------- 초기 ----------
+(function init(){
+  function bind(){
+
+    // 필수 체크박스 목록(3개)
+    const requiredChecks = ['c_main','c_esign','c_camera'];
+
+    // 이벤트 바인딩
+    [...requiredChecks, 'birth', 'sex'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      ['input','change','click','keyup','blur'].forEach(evt => el.addEventListener(evt, toggleConsentBtn));
+    });
+
+    toggleConsentBtn();
+
+    // ✅ 생년월일은 오늘 이후 날짜 선택 불가
+    (function setBirthMax(){
+      const b = document.getElementById('birth');
+      if(!b) return;
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth()+1).padStart(2,'0');
+      const dd = String(today.getDate()).padStart(2,'0');
+      b.max = `${yyyy}-${mm}-${dd}`;
+    })();
+
+    
+    // --- '연구 설명문 전체 보기' 펼치면 배지 '확인 완료'로 변경 ---
+    (function trackFullDetailsOpen(){
+      const d = document.getElementById('details_full');
+      const badge = document.getElementById('badge_full');
+      if(!d || !badge) return;
+
+      function setDone(){
+        fullDocConfirmed = true;     // 추가
+        toggleConsentBtn();          // 추가 (버튼 재평가)
+        badge.textContent = '확인 완료';
+        badge.classList.remove('required');
+        badge.classList.add('done');
+      }
+
+      if(d.open) setDone();
+      d.addEventListener('toggle', ()=>{ if(d.open) setDone(); });
+    })();
+
+    setupVFQ();
+    go('screen_consent');
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', bind);
+  } else { bind(); }
+
+  window.__consentTimer = setInterval(toggleConsentBtn, 600);
+})();
+
+  function gid(id){ return document.getElementById(id) }
+
+  function toggleConsentBtn(){
+  const requiredChecks = ['c_main','c_esign','c_camera'];
+
+  const birthVal = (gid('birth')?.value || '').trim();
+  const birthOk  = birthVal.length >= 4;
+  const sexOk    = !!gid('sex')?.value;
+
+  const unchecked = requiredChecks.filter(id => !gid(id)?.checked);
+  const checksOk  = unchecked.length === 0;
+
+  const fullOk = !!fullDocConfirmed;     // 추가
+  const ok = checksOk && birthOk && sexOk && fullOk;   // 수정
+
+  const btn = gid('btn_consent_start');
+  if(btn) btn.disabled = !ok;
+
+  const msg = [];
+  if(!fullOk) msg.push('2.연구 설명문 전체 보기');
+  if(unchecked.includes('c_main'))   msg.push('연구 참여 동의 (서명)');
+  if(unchecked.includes('c_esign'))  msg.push('전자동의 효력');
+  if(unchecked.includes('c_camera')) msg.push('카메라 접근 동의');
+  if(!birthOk) msg.push('생년월일');
+  if(!sexOk)   msg.push('성별');
+
+  const hint = gid('consentHint');
+  if(hint) hint.textContent = ok ? '' : ('미완료 : ' + msg.join(', '));
+}
+
+  function onConsentStart(){
+  const requiredChecks = ['c_main','c_esign','c_camera'];
+
+  const birthVal = (gid('birth').value||'').trim();
+  const birthOk = birthVal.length >= 4;
+  const sexOk = !!gid('sex').value;
+
+  const checksOk = requiredChecks.every(id => gid(id)?.checked);
+  const ok = checksOk && birthOk && sexOk && !!fullDocConfirmed;
+  if(!ok){ toggleConsentBtn(); return; }
+
+  const b = gid('birth').value; // YYYY-MM-DD
+  const sex = gid('sex').value;
+  const yyyymmdd = b ? b.replaceAll('-','') : '';
+
+  const used = JSON.parse(localStorage.getItem('used_ids')||'[]');
+  let base = yyyymmdd || 'NA';
+  let pid = base, i=2;
+  while(used.includes(pid)) { pid = base+'-'+i; i++; }
+
+  gid('pid').value = pid;
+  S.birth = yyyymmdd;
+  S.sex = sex;
+
+  go('screen_home');
+}
+
+
+  // 보조: CSV 양식 다운로드 (빈 헤더)
+  function downloadTemplate(){
+    const header=['pid','timestamp','birth','sex','pdmm','focal_px','pixPD_calib','VFQ_sum','NPC1_cm','NPC2_cm','NPC3_cm','NPC_mean_cm','RT_trials','RT_median_ms','RT_p90_ms','RT_lapses','RT_list_ms'].join(',')+ '\\n';
+    const blob=new Blob([header],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='template.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url)
+  }
+</script>
+</body>
+</html>
