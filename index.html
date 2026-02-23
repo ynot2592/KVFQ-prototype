@@ -695,6 +695,60 @@
   opacity: .9;
 }
 
+#consentHint{
+  margin-top: 14px;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.retestField{ align-items:start; }
+.retestBox{ width:100%; display:flex; flex-direction:column; gap:8px; }
+
+.retestTopNote{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  padding:8px 10px;
+  border-radius:12px;
+  background: rgba(34,211,238,.06);
+  border: 1px dashed rgba(34,211,238,.18);
+  line-height:1.35;
+}
+
+.optBadge{
+  flex:0 0 auto;
+  font-size:11px;
+  font-weight:800;
+  padding:2px 8px;
+  border-radius:999px;
+  color:#e6fbff;
+  background: rgba(34,211,238,.10);
+  border:1px solid rgba(34,211,238,.28);
+}
+
+.retestRow{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+#retest_initial{ width:140px; }
+#retest_digits{ width:220px; }
+
+#screen_consent .row{
+  flex-wrap: nowrap;   /* 줄바꿈 방지 */
+}
+.signedAt{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 48vw;     /* 버튼 옆에서 최대폭 제한 */
+  font-size: 12px;
+  opacity: .9;
+}
+@media (max-width:430px){
+  .signedAt{ max-width: 42vw; font-size: 11.5px; }
+}
+
 #screen_vfq h2{
   text-align: center; 
   font-size: 24px;
@@ -1049,39 +1103,47 @@
           <option value="M">남</option>
           <option value="F">여</option>
         </select>
+      </div>
+      <div class="field">
         <span>참여자 ID</span>
         <input id="pid_preview" readonly value="(동의 후 자동 생성)" />
       </div>
-      <div class="field retestField">
-          <span>
-              재검자 코드<br>
-              <span class="small">(2회 측정자만)</span>
-          </span>
+      <div class="field retestField" id="retest_field">
+  <span>
+    재검자 코드<br>
+    <span class="small">(2회 측정자만)</span>
+  </span>
 
-  <div class="retestInputs">
-    <input id="retest_initial" maxlength="1" placeholder="성 이니셜(예: K)" />
-    <input id="retest_digits" inputmode="numeric" maxlength="2" placeholder="숫자2자리(예: 93)" />
-    <div class="small retestNote">
-      ※ <b>2회 측정(신뢰도 검증)</b> 대상자는 반드시 입력해주세요.<br>
-      휴대폰 끝 2자리 등 <b>항상 동일하게 입력 가능한 숫자 2자리</b>를 사용하세요. (전화번호 전체 입력 금지)
+  <div class="retestBox">
+    <div class="retestTopNote">
+      <span class="optBadge">선택</span>
+      <span class="small">
+        ※ <b>2회 측정(신뢰도 검증)</b> 대상자는 반드시 입력해주세요.
+        휴대폰 끝 2자리 등 <b>항상 동일하게 입력 가능한 숫자 2자리</b>를 사용하세요. (전화번호 전체 입력 금지)
+      </span>
+    </div>
+
+    <div class="retestRow">
+      <input id="retest_initial" maxlength="1" inputmode="text" autocapitalize="characters" placeholder="성 이니셜(예: K)" />
+      <input id="retest_digits" inputmode="numeric" maxlength="2" placeholder="숫자2자리(예: 93)" />
     </div>
   </div>
 </div>
     </div>
+
+    <div id="consentHint" class="small" style="color: var(--text);"></div>
 
     <div class="row" style="margin-top:12px; align-items:center; gap:10px;">
         <button class="btn primary" id="btn_consent_start" onclick="onConsentSign()" disabled>
             동의하고 시작하기
         </button>
 
-        <span id="consentSignedAt_inline" class="small" style="color:var(--text);"></span>
+        <span id="consentSignedAt_inline" class="small signedAt"></span>
 
         <button class="btn" id="btn_consent_next" onclick="onConsentNext()" disabled>
             다음
         </button>
-    </div>
-
-    <div id="consentHint" class="small" style="color: var(--text);"></div>
+    </div>    
     </div>
 </div>
 
@@ -1161,7 +1223,7 @@
 
     <div class="row" style="margin-top:12px">
       <button class="btn primary" id="submitVFQ">설문 완료</button>
-      <button class="btn" onclick="go('screen_calib')">다음(카메라 교정)</button>
+      <button class="btn" id="btn_to_calib" onclick="go('screen_calib')">다음(카메라 교정)</button>
       <button class="btn ghost" id="btn_vfq_back" onclick="go('screen_home')">처음으로</button>
     </div>
 
@@ -1618,8 +1680,8 @@ if(mount){
     }
 
     btn.disabled = true;
-    btn.textContent = '전송 중...';
-    resultDiv.textContent = '잠시만 기다려주세요. 데이터를 저장하는 중입니다.';
+    btn.textContent = '제출 중...';
+    resultDiv.textContent = '결과를 제출 중입니다. 잠시만 기다려주세요.';
 
     // 총합 계산
     calcVFQ();
@@ -1877,6 +1939,26 @@ async function shareCSV(){
       ['input','change','click','keyup','blur'].forEach(evt => el.addEventListener(evt, toggleConsentBtn));
     });
 
+(function bindRetestInputs(){
+  const ini = gid('retest_initial');
+  const dig = gid('retest_digits');
+
+  if(ini){
+    ini.addEventListener('input', ()=>{
+      let v = (ini.value || '').toUpperCase();
+      v = v.replace(/[^A-Z]/g,'');   // 영문만
+      ini.value = v.slice(0,1);      // 1글자
+    });
+  }
+  if(dig){
+    dig.addEventListener('input', ()=>{
+      let v = (dig.value || '');
+      v = v.replace(/\D/g,'').slice(0,2); // 숫자만 2자리
+      dig.value = v;
+    });
+  }
+})();
+
     toggleConsentBtn();
 
     // ✅ 생년월일은 오늘 이후 날짜 선택 불가
@@ -1998,10 +2080,10 @@ function buildParticipantId(yyyymmdd, sex, retest2){
 
   // 성 이니셜은 별도 입력을 안 받으니, sex를 붙일 수도 있지만(예: -M93) IRB/혼란 방지 위해 여기선 제외
   // 대신 "재검 코드 2자리"만 붙임. 원하면 나중에 -M/-F 추가 가능.
-  let base = baseDate;
-  if(retest2){
-    base = `${baseDate}-${retest2}`;
-  }
+  let base = yyyymmdd || 'NA';
+if(retestOK){
+  base = `${base}-${ini}${dig}`;   // 19900101-K93
+}
 
   let pid = base, i=2;
   while(used.includes(pid)) { pid = base + '-' + i; i++; }
@@ -2021,12 +2103,16 @@ function onConsentSign(){
 
   const fullOk = !!fullDocConfirmed;
 
-  // ✅ 재검 코드: 선택이지만, 입력했으면 2자리 숫자여야 함
-  const retest2 = normalizeRetestCode();
-  if((gid('retest_code')?.value || '').trim() && retest2.length !== 2){
-    alert('재검자 코드는 숫자 2자리로 입력해주세요. 예: 93');
-    return;
-  }
+  // ✅ 재검 코드: 선택사항
+  const ini = (gid('retest_initial')?.value || '').trim().toUpperCase();
+const dig = (gid('retest_digits')?.value || '').trim();
+const retestOK = (ini.length === 1 && /^\d{2}$/.test(dig));
+const retestAny = (ini.length > 0 || dig.length > 0);
+
+if(retestAny && !retestOK){
+  alert('재검자 코드는 "성 이니셜 1글자 + 숫자 2자리"로 입력해주세요. 예: K93');
+  return;
+}
 
   const ok = checksOk && birthOk && sexOk && fullOk;
   if(!ok){ toggleConsentBtn(); return; }
@@ -2054,10 +2140,8 @@ function onConsentSign(){
   if(inline) inline.textContent = `동의 완료 시각: ${S.consentAtKST}`;
   
   consentSigned = true;
-
-  // 버튼 상태
-  const nextBtn = gid('btn_consent_next').disabled = false;
-  const signBtn = gid('btn_consent_start').disabled = true;
+  gid('btn_consent_start').disabled = true;
+  gid('btn_consent_next').disabled = false;
 }
 
 function onConsentNext(){
@@ -2091,7 +2175,7 @@ function resetAll(){
   if(gid('sex')) gid('sex').value = '';
   if(gid('retest_initial')) gid('retest_initial').value = '';
   if(gid('retest_digits')) gid('retest_digits').value = '';
-  if(gid('pid_preview')) gid('pid_preview').value = '(동의 후 자동 생성)';
+  if(gid('pid_preview')) gid('pid_preview').value = '(동의 후 자동 생성)';  
 
   // 동의 시각 표시 초기화
   if(gid('consentSignedAt_inline')) gid('consentSignedAt_inline').textContent = '';
@@ -2120,6 +2204,12 @@ function resetAll(){
 
   toggleConsentBtn();
   go('screen_consent');
+
+const sb = gid('submitVFQ');
+if(sb){
+  sb.disabled = false;
+  sb.textContent = '설문 완료'; // 또는 '제출'
+}
 }
 
 </script>
