@@ -219,6 +219,28 @@
   color:#e6ebff;
 }
 
+.metaBox .metaRow{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  padding:6px 0;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.metaBox .metaRow:first-child{ border-top:0; padding-top:0; }
+.metaBox .metaRow:last-child{ padding-bottom:0; }
+
+.metaBox .metaRow b{
+  flex: 0 0 78px;
+  white-space: nowrap;
+  color:#e6ebff;
+}
+.metaBox .metaRow span{
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: keep-all;
+  overflow-wrap:anywhere;
+}
+
 .consentSummary{
   margin-top: 12px;   /* 기존 0 → 14px (12~16 사이에서 취향 조절) */
   padding:12px;
@@ -805,9 +827,9 @@
 
 <div class="consentMeta">
   <div class="metaBox">
-    <div><b>연구과제명</b> K-VFQ 개발·검증 및 스마트폰 자가측정</div>
-    <div><b>연구기간</b> IRB 승인일(25.11.12) ~ 1년 이내</div>
-    <div><b>소요시간</b> 설문(17문항) + 자가측정 : 약 20–25분</div>
+      <div class="metaRow"><b>연구과제명</b><span>K-VFQ 개발·검증 및 스마트폰 자가측정</span></div>
+      <div class="metaRow"><b>연구기간</b><span>IRB 승인일(25.11.12) ~ 1년 이내</span></div>
+      <div class="metaRow"><b>소요시간</b><span>설문(17문항) + 자가측정 : 약 20–25분</span></div>
   </div>
 </div>
 
@@ -987,12 +1009,32 @@
           <option value="F">여</option>
         </select>
       </div>
+      <div class="field">
+          <span>
+              재검자 코드<br>
+              <span class="small">(선택, 2자리)</span>
+          </span>
+          <input id="retest_code" inputmode="numeric" maxlength="2" placeholder="예: 93" />
+      </div>
+      <div class="field" style="grid-column:1 / -1;">
+          <span class="small" style="text-align:left; white-space:normal;">
+              ※ <b>2회 측정(신뢰도 검증)</b> 예정자는 반드시 입력해주세요. 
+              <br>휴대폰 끝 2자리 등 <b>항상 동일하게 입력 가능한 2자리 숫자</b>를 사용하세요. (전화번호 전체 입력 금지)
+           </span>
+      </div>
     </div>
 
-    <div class="row" style="margin-top:12px">
-      <button class="btn primary" id="btn_consent_start" onclick="onConsentStart()" disabled>동의하고 시작하기</button>      
+    <div class="row" style="margin-top:12px; align-items:center; gap:10px;">
+        <button class="btn primary" id="btn_consent_start" onclick="onConsentSign()" disabled>
+            동의하고 시작하기
+        </button>
+
+        <span id="consentSignedAt_inline" class="small" style="color:var(--text);"></span>
+
+        <button class="btn" id="btn_consent_next" onclick="onConsentNext()" disabled>
+            다음
+        </button>
     </div>
-    <div id="consentSignedAt" class="small" style="margin-top:8px;"></div>
 
     <div id="consentHint" class="small" style="color: var(--text);"></div>
     <div id="consentTime" class="small" style="color:var(--text); margin-top:6px;"></div>
@@ -1023,7 +1065,7 @@
     <p class="small">아래 <b>카메라 권한 요청(전면)</b> 버튼을 눌러주세요. 전면 카메라 접근을 확인합니다. 실패 시 원인 힌트를 표시합니다. 카메라 화면이 나오면 <b>교정 화면으로 이동</b> 버튼을 눌러주시면 다음 화면으로 넘어갑니다.</p>
     <div class="row" style="margin:8px 0">
       <button class="btn primary" onclick="requestCam()">카메라 권한 요청(전면)</button>
-      <button class="btn" onclick="go('screen_calib')">교정 화면으로 이동</button>
+      <button class="btn" id="btn_to_calib" onclick="go('screen_calib')">다음(카메라 교정)</button>
       <button class="btn ghost" onclick="go('screen_home')">처음으로</button>
     </div>
     <div class="videoWrap"><video id="testV" playsinline></video><canvas id="testC"></canvas></div>
@@ -1148,9 +1190,32 @@
 
 <!-- 설문 완료 감사 페이지 -->
 <div class="card hidden" id="screen_thankyou">
-  <h2>참여해주셔서 감사합니다</h2>
-  <p class="small">
-    설문이 정상적으로 제출되었습니다. 창을 닫아주셔도 됩니다. </p>
+  <h2 style="text-align:center; margin-top:10px;">참여해주셔서 감사합니다</h2>
+
+  <div class="sectionBox" id="thanks_section" style="margin-top:14px;">
+    <div class="sectionHead" style="justify-content:center;">
+      <span>제출 완료</span>
+    </div>
+    <div class="sectionBody">
+      <p style="margin:0; color:var(--muted); line-height:1.6;">
+        설문이 정상적으로 제출되었습니다.
+        <br>지금 창을 닫아주셔도 됩니다.
+      </p>
+
+      <div class="kpi" style="margin-top:12px;">
+        <div class="v">참여자ID: <b id="thanks_pid">-</b></div>
+        <div class="v">제출 시각(KST): <b id="thanks_time">-</b></div>
+      </div>
+
+      <p class="small" style="margin-top:10px;">
+        ※ 제출 후 화면을 닫기 전, 위 정보가 정상 표시되는지 확인해주세요.
+      </p>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:12px; justify-content:center;">
+    <button class="btn ghost" onclick="resetAll()">처음으로</button>
+  </div>
 </div>  
 
   <!-- 내보내기 -->
@@ -1188,6 +1253,10 @@ const isFB    = /FBAN|FBAV/i.test(UA);
 const isInApp = isKakao || isLine || isIG || isFB;
 const isAndroid = /Android/i.test(UA);
 const isIOS = /iPhone|iPad|iPod/i.test(UA);
+
+// -------- 앱 모드 분기 (설문형/자가측정형) --------
+const params = new URLSearchParams(location.search);
+const APP_MODE = (params.get('mode') || 'full').toLowerCase(); // 'survey' or 'full'
 
   // ✅ Google Sheet 서버 주소
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxbWd2Xh1pMfWfGZHGL1TA0RD5HaSSjqdi1Csc6ZfmaG7eu2K4C-YkRyDeZbOXLrRjE/exec";
@@ -1537,6 +1606,13 @@ if(mount){
       return;
     }
 
+    // Thank you 화면에 표시 값 채우기
+    const tp = gid('thanks_pid'); 
+    if(tp) tp.textContent = S.pid || '-';
+
+    const tt = gid('thanks_time');
+    if(tt) tt.textContent = toKSTString(now2);
+
     // ✅ 성공했을 때 다음 페이지
     go('screen_thankyou');
   };
@@ -1790,6 +1866,12 @@ async function shareCSV(){
     go('screen_consent');
   }
 
+    // 설문형 모드에서는 자가측정 버튼 숨김
+    if(APP_MODE === 'survey'){
+      const b = gid('btn_to_calib');
+      if(b) b.classList.add('hidden');
+    }
+
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded', bind);
   } else { bind(); }
@@ -1815,6 +1897,10 @@ async function shareCSV(){
   const btn = gid('btn_consent_start');
   if(btn) btn.disabled = !ok;
 
+  // 서명 전엔 '동의하고 시작하기'만 활성 가능, 서명 후엔 잠그고 '다음'만 활성
+  const nextBtn = gid('btn_consent_next');
+  if(nextBtn) nextBtn.disabled = !consentSigned;
+
   const msg = [];
   if(!fullOk) msg.push('2.연구 설명문 전체 보기');
   if(unchecked.includes('c_main'))   msg.push('연구 참여 동의 (서명)');
@@ -1827,45 +1913,99 @@ async function shareCSV(){
   if(hint) hint.textContent = ok ? '' : ('미완료 : ' + msg.join(', '));
 }
 
-  function onConsentStart(){
+  let consentSigned = false;
+
+function normalizeRetestCode(){
+  const raw = (gid('retest_code')?.value || '').trim();
+  if(!raw) return '';
+  // 숫자 2자리만 허용
+  const two = raw.replace(/\D/g,'').slice(0,2);
+  return two;
+}
+
+// 성별/생년월일 기반 PID 생성 + (재검 코드 있으면 -K93 형태로 결합) + used_ids 중복 suffix
+function buildParticipantId(yyyymmdd, sex, retest2){
+  const used = JSON.parse(localStorage.getItem('used_ids')||'[]');
+  const baseDate = yyyymmdd || 'NA';
+
+  // 성 이니셜은 별도 입력을 안 받으니, sex를 붙일 수도 있지만(예: -M93) IRB/혼란 방지 위해 여기선 제외
+  // 대신 "재검 코드 2자리"만 붙임. 원하면 나중에 -M/-F 추가 가능.
+  let base = baseDate;
+  if(retest2){
+    base = `${baseDate}-${retest2}`;
+  }
+
+  let pid = base, i=2;
+  while(used.includes(pid)) { pid = base + '-' + i; i++; }
+  return pid;
+}
+
+function onConsentSign(){
   const requiredChecks = ['c_main','c_esign','c_camera'];
 
-  const birthVal = (gid('birth').value||'').trim();
-  const birthOk = birthVal.length >= 4;
-  const sexOk = !!gid('sex').value;
+  const birthVal = (gid('birth')?.value || '').trim(); // YYYY-MM-DD
+  const birthOk  = birthVal.length >= 4;
+  const sexVal   = gid('sex')?.value || '';
+  const sexOk    = !!sexVal;
 
-  const checksOk = requiredChecks.every(id => gid(id)?.checked);
-  const ok = checksOk && birthOk && sexOk && !!fullDocConfirmed;
+  const unchecked = requiredChecks.filter(id => !gid(id)?.checked);
+  const checksOk  = unchecked.length === 0;
+
+  const fullOk = !!fullDocConfirmed;
+
+  // ✅ 재검 코드: 선택이지만, 입력했으면 2자리 숫자여야 함
+  const retest2 = normalizeRetestCode();
+  if((gid('retest_code')?.value || '').trim() && retest2.length !== 2){
+    alert('재검자 코드는 숫자 2자리로 입력해주세요. 예: 93');
+    return;
+  }
+
+  const ok = checksOk && birthOk && sexOk && fullOk;
   if(!ok){ toggleConsentBtn(); return; }
 
-  const b = gid('birth').value; // YYYY-MM-DD
-  const sex = gid('sex').value;
-  const yyyymmdd = b ? b.replaceAll('-','') : '';
+  const yyyymmdd = birthVal ? birthVal.replaceAll('-','') : '';
 
-  const used = JSON.parse(localStorage.getItem('used_ids')||'[]');
-  let base = yyyymmdd || 'NA';
-  let pid = base, i=2;
-  while(used.includes(pid)) { pid = base+'-'+i; i++; }
+  const pid = buildParticipantId(yyyymmdd, sexVal, retest2);
 
-  gid('pid').value = pid;
+  // 상태 저장
   S.pid = pid;
   S.birth = yyyymmdd;
-  S.sex = sex;
+  S.sex = sexVal;
+  S.retest2 = retest2; // 나중에 시트/CSV에 필요하면 사용
 
-// 동의 버튼 누른 시각 기록 (브라우저에서는 Utilities 사용 불가)
-const now = new Date();
+  // 동의 시각 기록 (UTC + KST)
+  const now = new Date();
+  S.consentAtISO = now.toISOString();
+  S.consentAtKST = toKSTString(now);
 
-// UTC(표준) - 분석/기록용으로 유지
-S.consentAtISO = now.toISOString();
+  // UI 표시(버튼 옆)
+  const inline = gid('consentSignedAt_inline');
+  if(inline) inline.textContent = `기록: ${S.consentAtKST}`;
 
-// KST(한국시간) - 사람이 보기 좋은 값
-S.consentAtKST = toKSTString(now);
+  // 아래 표시도 유지하고 싶으면 그대로
+  const ct = gid('consentTime');
+  if(ct) ct.textContent = "동의 완료 시각: " + S.consentAtKST;
 
-// 화면 표시도 KST로
-const ct = gid('consentTime');
-if(ct) ct.textContent = "동의 완료 시각: " + S.consentAtKST;
+  consentSigned = true;
 
-go('screen_home');
+  // 버튼 상태
+  const nextBtn = gid('btn_consent_next');
+  if(nextBtn) nextBtn.disabled = false;
+
+  const signBtn = gid('btn_consent_start');
+  if(signBtn) signBtn.disabled = true;
+}
+
+function onConsentNext(){
+  if(!consentSigned) return;
+
+  // ✅ mode=survey이면 바로 VFQ로 (2페이지)
+  if(APP_MODE === 'survey'){
+    go('screen_vfq');
+    return;
+  }
+  // full이면 기존대로 홈으로
+  go('screen_home');
 }
 
 
