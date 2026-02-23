@@ -1185,17 +1185,25 @@ const isIOS = /iPhone|iPad|iPod/i.test(UA);
   // ✅ Google Sheet 서버 주소
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyKbessvdT5Hd76DOP39rDKRjty0WdtyugppnomOEtijuQJFBPZKSNosbPnL3UdbF-z/exec";
 
-// ✅ 시트로 데이터 보내는 함수
-async function sendToSheet(data){
+// 시트로 데이터 보내는 함수
+async function sendToSheet(payload){
   try{
-    await fetch(GAS_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+    console.log('[sendToSheet] payload:', payload);
+
+    // 중요: GAS는 CORS 때문에 응답을 읽으려 하면 막히는 경우가 많아서
+    // 일단 "보내기만" 확실히 되도록 no-cors로 보냄
+    await fetch(SHEET_WEBAPP_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
     });
-    console.log("시트 전송 성공");
+
+    console.log('[sendToSheet] sent (no-cors). Check Google Sheet.');
+    return true;
   }catch(err){
-    console.error("시트 전송 실패", err);
+    console.error('[sendToSheet] FAILED:', err);
+    return false;
   }
 }
   const S={ pid:"", pdmm:64, vfq:{}, vfqSum:0, focal_px:null, pixPD:0, distNow:NaN, npc:[null,null,null], pvt:{dur:120,start:0,elapsed:0,timer:null,phase:'idle',waitTO:null,goAt:0,rt:[],lapse:0,last:null} }
@@ -1461,7 +1469,7 @@ if(mount){
     const resultDiv = document.getElementById('vfqResult');
 
     if(btn && resultDiv){
-      btn.onclick = ()=>{
+      btn.onclick = async ()=>{
         const missing = [];
         vfqAnswers.forEach((v,i)=>{ if(v===null) missing.push(i+1); });
         if(missing.length){
@@ -1476,7 +1484,7 @@ if(mount){
         resultDiv.textContent = txt;
 
         // ✅ 구글시트로 전송
-        sendToSheet({
+        const ok = await sendToSheet({
            pid: S.pid,
            consent_at: S.consentAtISO,
            timestamp: new Date().toISOString(),
@@ -1485,6 +1493,10 @@ if(mount){
            vfq_total: S.vfqSum,
            vfq_items: vfqAnswers
         });
+
+        if(!ok){
+           alert('구글시트 전송에 실패했습니다. (콘솔 에러 확인)');
+           return;
 
         go('screen_thankyou');
       };
