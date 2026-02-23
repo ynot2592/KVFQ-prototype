@@ -1830,24 +1830,20 @@ async function shareCSV(){
   S.birth = yyyymmdd;
   S.sex = sex;
 
-  // 동의 버튼 누른 시각 기록 
-  const now = Utilities.formatDate(
-  new Date(),
-  "Asia/Seoul",
-  "yyyy-MM-dd HH:mm:ss"
-);
-  S.consentAtISO = now.toISOString(); // 구글시트/CSV용(표준)
-  S.consentAtLocal =
-    now.getFullYear() + "-" +
-    String(now.getMonth()+1).padStart(2,'0') + "-" +
-    String(now.getDate()).padStart(2,'0') + " " +
-    String(now.getHours()).padStart(2,'0') + ":" +
-    String(now.getMinutes()).padStart(2,'0');
+// 동의 버튼 누른 시각 기록 (브라우저에서는 Utilities 사용 불가)
+const now = new Date();
 
-  const ct = gid('consentTime');
-  if(ct) ct.textContent = "동의 완료 시각: " + S.consentAtLocal;
+// ✅ 구글시트/CSV용(표준) ISO (UTC 기반)
+S.consentAtISO = now.toISOString();
 
-  go('screen_home');
+// ✅ 화면 표시용(한국시간, 24시간 표기)
+S.consentAtLocal =
+  now.toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).replace('T', ' ');
+
+const ct = gid('consentTime');
+if(ct) ct.textContent = "동의 완료 시각: " + S.consentAtLocal;
+
+go('screen_home');
 }
 
 
