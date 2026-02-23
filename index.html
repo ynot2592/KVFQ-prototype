@@ -1502,6 +1502,8 @@ if(mount){
     const ok = await sendToSheet({
       pid: S.pid,
       consent_at: S.consentAtISO,
+      consent_at_kst: S.consentAtLocal,  // 화면에 보여주는 한국시간(문자열)
+      timestamp_kst: new Date().toLocaleString('sv-SE', { timeZone:'Asia/Seoul' }).replace('T',' ')
       timestamp: new Date().toISOString(),
       birth: S.birth,
       sex: S.sex,
