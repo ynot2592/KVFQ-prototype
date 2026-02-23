@@ -1215,7 +1215,7 @@ async function sendToSheet(payload){
 }
   const S={ pid:"", pdmm:64, vfq:{}, vfqSum:0, focal_px:null, pixPD:0, distNow:NaN, npc:[null,null,null], pvt:{dur:120,start:0,elapsed:0,timer:null,phase:'idle',waitTO:null,goAt:0,rt:[],lapse:0,last:null} }
 
-function toKSTString(d=new Date()){
+function toKSTString(d = new Date()){
   const kst = new Date(d.getTime() + 9*60*60*1000);
   const yyyy = kst.getUTCFullYear();
   const mm = String(kst.getUTCMonth()+1).padStart(2,'0');
@@ -1223,7 +1223,7 @@ function toKSTString(d=new Date()){
   const hh = String(kst.getUTCHours()).padStart(2,'0');
   const mi = String(kst.getUTCMinutes()).padStart(2,'0');
   const ss = String(kst.getUTCSeconds()).padStart(2,'0');
-  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`; // 24시간제
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`; // 예: 2026-02-24 03:37:35
 }
 
   // '연구 설명문 전체 보기' 확인 완료 여부
