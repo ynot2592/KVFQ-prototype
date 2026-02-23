@@ -1146,6 +1146,13 @@
     <div class="row" style="margin-top:8px"><button class="btn" onclick="go('screen_export')">다음(CSV 저장)</button><button class="btn ghost" onclick="go('screen_home')">처음으로</button></div>
   </div>
 
+<!-- 설문 완료 감사 페이지 -->
+<div class="card hidden" id="screen_thankyou">
+  <h2>참여해주셔서 감사합니다</h2>
+  <p class="small">
+    설문이 정상적으로 제출되었습니다. 창을 닫아주셔도 됩니다.
+  </p>  
+
   <!-- 내보내기 -->
 <div class="card hidden" id="screen_export">
   <h2>CSV 저장</h2>
@@ -1210,7 +1217,7 @@ async function sendToSheet(payload){
   // '연구 설명문 전체 보기' 확인 완료 여부
   let fullDocConfirmed = false;
   const NPC_SPEED_MAX = 4.0; // NPC 이동 속도 경고 임계값(cm/s)  
-  const screens=['screen_consent','screen_home','screen_camtest','screen_vfq','screen_calib','screen_npc','screen_pvt','screen_export']
+  const screens=['screen_consent','screen_home','screen_camtest','screen_vfq','screen_thankyou','screen_calib','screen_npc','screen_pvt','screen_export']
   function go(id){
   screens.forEach(s=>document.getElementById(s).classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
@@ -1469,13 +1476,18 @@ if(mount){
     const resultDiv = document.getElementById('vfqResult');
 
     if(btn && resultDiv){
-  btn.onclick = async ()=>{
-    const missing = [];
-    vfqAnswers.forEach((v,i)=>{ if(v===null) missing.push(i+1); });
-    if(missing.length){
-      resultDiv.textContent = "아직 응답하지 않은 문항이 있습니다: " + missing.join(", ") + "번";
-      return;
+      btn.onclick = async ()=>{         
+         const missing = [];
+         vfqAnswers.forEach((v,i)=>{ if(v===null) missing.push(i+1); });
+    
+         if(missing.length){
+           resultDiv.textContent = "아직 응답하지 않은 문항이 있습니다: " + missing.join(", ") + "번";
+           return;
     }
+
+    btn.disabled = true;
+    btn.textContent = '전송 중...';
+    resultDiv.textContent = '잠시만 기다려주세요. 데이터를 저장하는 중입니다.';
 
     // 총합 계산
     calcVFQ();
@@ -1486,7 +1498,7 @@ if(mount){
     txt += "\n총합: " + S.vfqSum;
     resultDiv.textContent = txt;
 
-    // ✅ 구글시트로 전송
+    //  구글시트로 전송
     const ok = await sendToSheet({
       pid: S.pid,
       consent_at: S.consentAtISO,
@@ -1498,12 +1510,14 @@ if(mount){
     });
 
     if(!ok){
-      alert('구글시트 전송에 실패했습니다. (콘솔 에러 확인)');
+      alert('구글시트 전송에 실패했습니다. 인터넷 상태를 확인하고 다시 시도해주세요.');
+      btn.disabled = false;
+      btn.textContent = '설문 완료';
       return;
     }
 
-    // ✅ 성공했을 때 다음 페이지(지금은 임시로 카메라 교정으로)
-    go('screen_calib');
+    // ✅ 성공했을 때 다음 페이지
+    go('screen_thankyou');
   };
  }
 }
@@ -1816,8 +1830,12 @@ async function shareCSV(){
   S.birth = yyyymmdd;
   S.sex = sex;
 
-  // ✅ 동의 버튼 누른 시각 기록 (로컬 시간 + 표준 ISO)
-  const now = new Date();
+  // 동의 버튼 누른 시각 기록 
+  const now = Utilities.formatDate(
+  new Date(),
+  "Asia/Seoul",
+  "yyyy-MM-dd HH:mm:ss"
+);
   S.consentAtISO = now.toISOString(); // 구글시트/CSV용(표준)
   S.consentAtLocal =
     now.getFullYear() + "-" +
