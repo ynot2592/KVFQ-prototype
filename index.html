@@ -995,6 +995,7 @@
     <div id="consentSignedAt" class="small" style="margin-top:8px;"></div>
 
     <div id="consentHint" class="small" style="color: var(--text);"></div>
+    <div id="consentTime" class="small" style="color:var(--text); margin-top:6px;"></div>
   </div>
 </div>
 
@@ -1181,10 +1182,26 @@ const isInApp = isKakao || isLine || isIG || isFB;
 const isAndroid = /Android/i.test(UA);
 const isIOS = /iPhone|iPad|iPod/i.test(UA);
 
+  // ✅ Google Sheet 서버 주소
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyKbessvdT5Hd76DOP39rDKRjty0WdtyugppnomOEtijuQJFBPZKSNosbPnL3UdbF-z/exec";
+
+// ✅ 시트로 데이터 보내는 함수
+async function sendToSheet(data){
+  try{
+    await fetch(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    console.log("시트 전송 성공");
+  }catch(err){
+    console.error("시트 전송 실패", err);
+  }
+}
   const S={ pid:"", pdmm:64, vfq:{}, vfqSum:0, focal_px:null, pixPD:0, distNow:NaN, npc:[null,null,null], pvt:{dur:120,start:0,elapsed:0,timer:null,phase:'idle',waitTO:null,goAt:0,rt:[],lapse:0,last:null} }
   // '연구 설명문 전체 보기' 확인 완료 여부
   let fullDocConfirmed = false;
-  const NPC_SPEED_MAX = 4.0; // NPC 이동 속도 경고 임계값(cm/s)
+  const NPC_SPEED_MAX = 4.0; // NPC 이동 속도 경고 임계값(cm/s)  
   const screens=['screen_consent','screen_home','screen_camtest','screen_vfq','screen_calib','screen_npc','screen_pvt','screen_export']
   function go(id){
   screens.forEach(s=>document.getElementById(s).classList.add('hidden'));
@@ -1457,6 +1474,19 @@ if(mount){
         vfqAnswers.forEach((v,i)=>{ txt += (i+1) + "번: " + v + "\n"; });
         txt += "\n총합: " + S.vfqSum;
         resultDiv.textContent = txt;
+
+        // ✅ 구글시트로 전송
+        sendToSheet({
+           pid: S.pid,
+           consent_at: S.consentAtISO,
+           timestamp: new Date().toISOString(),
+           birth: S.birth,
+           sex: S.sex,
+           vfq_total: S.vfqSum,
+           vfq_items: vfqAnswers
+        });
+
+        go('screen_thankyou');
       };
     }
   }
@@ -1571,13 +1601,13 @@ if(mount){
     calcVFQ();
     const ts = new Date().toISOString().replace(/:/g,'-');
     const pidSafe = (S.pid || gid('pid').value || 'NA');
-    const header = ['pid','timestamp','birth','sex','pdmm','focal_px','pixPD_calib','VFQ_sum','NPC1_cm','NPC2_cm','NPC3_cm','NPC_mean_cm','RT_trials','RT_median_ms','RT_p90_ms','RT_lapses','RT_list_ms'].join(',')+'\\n';
+    const header = ['pid','timestamp','consent_at','birth','sex','pdmm','focal_px','pixPD_calib','VFQ_sum','NPC1_cm','NPC2_cm','NPC3_cm','NPC_mean_cm','RT_trials','RT_median_ms','RT_p90_ms','RT_lapses','RT_list_ms'].join(',')+'\\n';
     const rts = S.pvt.rt.slice().sort((a,b)=>a-b);
     const med = isFinite(q(rts,0.5))?Math.round(q(rts,0.5)):'';
     const p90 = isFinite(q(rts,0.9))?Math.round(q(rts,0.9)):'';
     const npcVals = S.npc.filter(v=>v!=null);
     const npcMean = npcVals.length? (npcVals.reduce((a,b)=>a+b,0)/npcVals.length).toFixed(1):'';
-    const row = [csv(pidSafe), new Date().toISOString(), S.birth||'', S.sex||'', S.pdmm, S.focal_px?S.focal_px.toFixed(1):'', S.pixPD?S.pixPD.toFixed(1):'', S.vfqSum, S.npc[0]??'', S.npc[1]??'', S.npc[2]??'', npcMean, S.pvt.rt.length, med, p90, S.pvt.lapse, '"'+S.pvt.rt.join(' ')+'"'].join(',')+'\\n';
+    const row = [csv(pidSafe), new Date().toISOString(), S.consentAtISO || '',S.birth||'', S.sex||'', S.pdmm, S.focal_px?S.focal_px.toFixed(1):'', S.pixPD?S.pixPD.toFixed(1):'', S.vfqSum, S.npc[0]??'', S.npc[1]??'', S.npc[2]??'', npcMean, S.pvt.rt.length, med, p90, S.pvt.lapse, '"'+S.pvt.rt.join(' ')+'"'].join(',')+'\\n';
     const text = header + row;
     const blob = new Blob([text], {type:'text/csv;charset=utf-8'});
     const filename = `fatigue_${pidSafe}_${ts}.csv`;
@@ -1768,6 +1798,19 @@ async function shareCSV(){
   gid('pid').value = pid;
   S.birth = yyyymmdd;
   S.sex = sex;
+
+  // ✅ 동의 버튼 누른 시각 기록 (로컬 시간 + 표준 ISO)
+  const now = new Date();
+  S.consentAtISO = now.toISOString(); // 구글시트/CSV용(표준)
+  S.consentAtLocal =
+    now.getFullYear() + "-" +
+    String(now.getMonth()+1).padStart(2,'0') + "-" +
+    String(now.getDate()).padStart(2,'0') + " " +
+    String(now.getHours()).padStart(2,'0') + ":" +
+    String(now.getMinutes()).padStart(2,'0');
+
+  const ct = gid('consentTime');
+  if(ct) ct.textContent = "동의 완료 시각: " + S.consentAtLocal;
 
   go('screen_home');
 }
