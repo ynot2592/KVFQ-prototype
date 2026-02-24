@@ -1942,25 +1942,25 @@ async function shareCSV(){
       ['input','change','click','keyup','blur'].forEach(evt => el.addEventListener(evt, toggleConsentBtn));
     });
 
-(function bindRetestInputs(){
-  const ini = gid('retest_initial');
-  const dig = gid('retest_digits');
+    (function bindRetestInputs(){
+      const ini = gid('retest_initial');
+      const dig = gid('retest_digits');
 
-  if(ini){
-    ini.addEventListener('input', ()=>{
-      let v = (ini.value || '').toUpperCase();
-      v = v.replace(/[^A-Z]/g,'');   // 영문만
-      ini.value = v.slice(0,1);      // 1글자
-    });
-  }
-  if(dig){
-    dig.addEventListener('input', ()=>{
-      let v = (dig.value || '');
-      v = v.replace(/\D/g,'').slice(0,2); // 숫자만 2자리
-      dig.value = v;
-    });
-  }
-})();
+      if(ini){
+        ini.addEventListener('input', ()=>{
+          let v = (ini.value || '').toUpperCase();
+          v = v.replace(/[^A-Z]/g,'');
+          ini.value = v.slice(0,1);
+        });
+      }
+      if(dig){
+        dig.addEventListener('input', ()=>{
+          let v = (dig.value || '');
+          v = v.replace(/\D/g,'').slice(0,2);
+          dig.value = v;
+        });
+      }
+    })();
 
     toggleConsentBtn();
 
@@ -1975,7 +1975,6 @@ async function shareCSV(){
       b.max = `${yyyy}-${mm}-${dd}`;
     })();
 
-    
     // --- '연구 설명문 전체 보기' 펼치면 배지 '확인 완료'로 변경 ---
     (function trackFullDetailsOpen(){
       const d = document.getElementById('details_full');
@@ -1983,8 +1982,8 @@ async function shareCSV(){
       if(!d || !badge) return;
 
       function setDone(){
-        fullDocConfirmed = true;     // 추가
-        toggleConsentBtn();          // 추가 (버튼 재평가)
+        fullDocConfirmed = true;
+        toggleConsentBtn();
         badge.textContent = '확인 완료';
         badge.classList.remove('required');
         badge.classList.add('done');
@@ -1994,31 +1993,31 @@ async function shareCSV(){
       d.addEventListener('toggle', ()=>{ if(d.open) setDone(); });
     })();
 
+    // 설문형 모드에서는 자가측정 버튼/필드 숨김
+    if(APP_MODE === 'survey'){
+      const b = gid('btn_vfq_to_calib');
+      if(b) b.classList.add('hidden');
+
+      const f = gid('home_pid_field');
+      if(f) f.classList.add('hidden');
+    }
+
+    // VFQ 화면 “뒤로” 버튼을 동의 화면으로
+    const backBtn = gid('btn_vfq_back');
+    if(backBtn){
+      backBtn.textContent = '뒤로';
+      backBtn.onclick = ()=>go('screen_consent');
+    }
+
     setupVFQ();
     go('screen_consent');
   }
 
-    // 설문형 모드에서는 자가측정 버튼 숨김
-    if(APP_MODE === 'survey'){
-      const b = gid('btn_vfq_to_calib');
-      if(b) b.classList.add('hidden');
-    }
-
-    if(APP_MODE === 'survey'){
-      const f = gid('home_pid_field');
-      if(f) f.classList.add('hidden');
-    }    
-
-const backBtn = gid('btn_vfq_back');
-if(backBtn){
-  backBtn.textContent = '뒤로';
-  backBtn.onclick = ()=>go('screen_consent');
-  }
-}
-
-  if(document.readyState==='loading'){
+  if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', bind);
-  } else { bind(); }
+  } else {
+    bind();
+  }
 
   window.__consentTimer = setInterval(toggleConsentBtn, 600);
 })();
