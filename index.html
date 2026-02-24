@@ -1260,10 +1260,9 @@
 </div>
 
     <div class="row" style="margin-top:12px">
-      <button class="btn primary" id="submitVFQ">설문 완료</button>
-      <button class="btn" id="btn_vfq_to_calib" onclick="go('screen_calib')">다음(카메라 교정)</button>
-      <button class="btn ghost" id="btn_vfq_back" onclick="go('screen_home')">처음으로</button>
-    </div>
+  <button class="btn primary" id="submitVFQ">설문 완료</button>
+  <button class="btn ghost" id="btn_vfq_back" onclick="go('screen_consent')">뒤로</button>
+</div>
 
     <!-- 지금은 테스트용으로 점수 요약을 보여주고, 나중엔 숨겨도 됨 -->
     <div id="vfqResult" class="small" style="margin-top:10px;white-space:pre-line;"></div>
@@ -1404,10 +1403,6 @@ const isFB    = /FBAN|FBAV/i.test(UA);
 const isInApp = isKakao || isLine || isIG || isFB;
 const isAndroid = /Android/i.test(UA);
 const isIOS = /iPhone|iPad|iPod/i.test(UA);
-
-// -------- 앱 모드 분기 (설문형/자가측정형) --------
-const params = new URLSearchParams(location.search);
-const APP_MODE = (params.get('mode') || 'full').toLowerCase(); // 'survey' or 'full'
 
   // ✅ Google Sheet 서버 주소
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxbWd2Xh1pMfWfGZHGL1TA0RD5HaSSjqdi1Csc6ZfmaG7eu2K4C-YkRyDeZbOXLrRjE/exec";
@@ -2028,23 +2023,11 @@ async function shareCSV(){
       if(d.open) setDone();
       d.addEventListener('toggle', ()=>{ if(d.open) setDone(); });
     })();
-
-    // 설문형 모드에서는 자가측정 버튼/필드 숨김
-    if(APP_MODE === 'survey'){
-      const b = gid('btn_vfq_to_calib');
-      if(b) b.classList.add('hidden');
-
+  
       const f = gid('home_pid_field');
       if(f) f.classList.add('hidden');
     }
-
-    // VFQ 화면 “뒤로” 버튼을 동의 화면으로
-    const backBtn = gid('btn_vfq_back');
-    if(backBtn){
-      backBtn.textContent = '뒤로';
-      backBtn.onclick = ()=>go('screen_consent');
-    }
-
+    
     setupVFQ();
     go('screen_consent');
   }
@@ -2165,14 +2148,7 @@ if(retestAny && !retestOK){
     
 function onConsentNext(){
   if(!consentSigned) return;
-
-  // ✅ mode=survey이면 바로 VFQ로 (2페이지)
-  if(APP_MODE === 'survey'){
-    go('screen_vfq');
-    return;
-  }
-  // full이면 기존대로 홈으로
-  go('screen_home');
+  go('screen_vfq');   // 무조건 2페이지(VFQ)로
 }
 
 // ✅ 버튼 색상 스텝 처리
