@@ -537,13 +537,6 @@
   margin-top:10px;
 }
 
-/* 버튼 아래 미완료 문장 간격 + 하단 여백 */
-#screen_consent #consentHint{
-  margin-top: 10px;      /* 버튼과 거리 */
-  margin-bottom: 10px;   /* 페이지 아래쪽과 거리 */
-  line-height: 1.4;
-}
-
 /* ===== 1페이지(동의) 생년월일/성별 입력칸: 라벨 가운데 정렬 느낌 ===== */
 #screen_consent .consentFormGrid .field{
   display: grid;
@@ -672,23 +665,23 @@
 
 #consentSignedAt_inline{
   font-size: 12px;
-  opacity: .9;
+  opacity: 1;
+  color: var(--text);
 }
 
 #consentHint{
-  margin-top: 14px;
-  margin-bottom: 10px;
-  line-height: 1.4;
-}
-
-/* 미완료 항목: 왼쪽 정렬(들여쓰기 느낌) + 위/아래 간격 조정 */
-#consentHint{
-  padding-left: 10px;   /* 카드 안쪽 여백과 라인 맞춤 */
+  padding-left: 10px;     /* 재검자 코드 라벨 시작선과 맞추기 */
   padding-right: 10px;
-  margin-top: 10px;
-  margin-bottom: 6px;   /* ✅ 아래(버튼)과 간격 줄이기 */
+  margin-top: 8px;        /* 위(재검자코드 박스)와는 자연스럽게 */
+  margin-bottom: 6px;     /* 아래(버튼)과 너무 멀지 않게 */
   line-height: 1.4;
   color: var(--text);
+}
+
+/* ✅ 버튼 내부 텍스트 줄바꿈 금지 */
+#btn_consent_start{
+  white-space: nowrap;
+  flex: 0 0 auto;      /* 버튼이 줄어들지 않게 */
 }
 
 .retestField{ align-items:start; }
@@ -737,19 +730,15 @@
   margin-bottom: 6px;  /* 안내문과 입력칸 사이 간격 */
 }
 
-#screen_consent .row{
-  flex-wrap: nowrap;   /* 줄바꿈 방지 */
-}
 .signedAt{
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 48vw;     /* 버튼 옆에서 최대폭 제한 */
-  font-size: 12px;
-  opacity: .9;
-}
-@media (max-width:430px){
-  .signedAt{ max-width: 42vw; font-size: 11.5px; }
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 60vw;   /* 58~65 사이 취향 */
+  color: var(--text);
+  opacity: 1;
 }
 
 #screen_vfq h2{
@@ -1143,17 +1132,20 @@
 
     <div id="consentHint" class="small" style="color: var(--text);"></div>
 
-    <div class="row" style="margin-top:6px; align-items:center; gap:10px;">
-        <button class="btn primary" id="btn_consent_start" onclick="onConsentSign()" disabled>
-            동의하고 시작하기
-        </button>
+    <!-- 1줄: 동의 버튼 + 동의완료시각 -->
+<div class="row consentRow1">
+  <button class="btn primary" id="btn_consent_start" onclick="onConsentSign()" disabled>
+    동의하고 시작하기
+  </button>
+  <span id="consentSignedAt_inline" class="small signedAt"></span>
+</div>
 
-        <span id="consentSignedAt_inline" class="small signedAt"></span>
-
-        <button class="btn" id="btn_consent_next" onclick="onConsentNext()" disabled>
-            다음
-        </button>
-    </div>    
+<!-- 2줄: 다음 버튼(아래로) -->
+<div class="row consentRow2">
+  <button class="btn primary" id="btn_consent_next" onclick="onConsentNext()" disabled>
+    다음
+  </button>
+</div>   
     </div>
 </div>
 
