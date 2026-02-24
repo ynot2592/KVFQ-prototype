@@ -2026,8 +2026,7 @@ async function shareCSV(){
   
       const f = gid('home_pid_field');
       if(f) f.classList.add('hidden');
-    }
-    
+        
     setupVFQ();
     go('screen_consent');
   }
@@ -2112,27 +2111,26 @@ function onConsentSign(){
 
   // ✅ 재검 코드: 선택사항
   const ini = (gid('retest_initial')?.value || '').trim().toUpperCase();
-const dig = (gid('retest_digits')?.value || '').trim();
-const retestOK = (ini.length === 1 && /^\d{2}$/.test(dig));
-const retestAny = (ini.length > 0 || dig.length > 0);
+  const dig = (gid('retest_digits')?.value || '').trim();
+  const retestOK = (ini.length === 1 && /^\d{2}$/.test(dig));
+  const retestAny = (ini.length > 0 || dig.length > 0);
 
-if(retestAny && !retestOK){
-  alert('재검자 코드는 "성 이니셜 1글자 + 숫자 2자리"로 입력해주세요. 예: K93');
-  return;
-}
+  if(retestAny && !retestOK){
+    alert('재검자 코드는 "성 이니셜 1글자 + 숫자 2자리"로 입력해주세요. 예: K93');
+    return;
+  }
 
   const ok = checksOk && birthOk && sexOk && fullOk;
   if(!ok){ toggleConsentBtn(); return; }
 
-  const yyyymmdd = birthVal ? birthVal.replaceAll('-','') : '';
-
+  const yyyymmdd = birthVal.replaceAll('-','');
   const pid = buildParticipantId(yyyymmdd, ini, dig);
 
   // 상태 저장
   S.pid = pid;
   S.birth = yyyymmdd;
   S.sex = sexVal;
-  S.retest2 = retestOK ? `${ini}${dig}` : ''; // 예: K93 또는 ''
+  S.retest2 = retestOK ? `${ini}${dig}` : '';
 
   const pv = gid('pid_preview');
   if(pv) pv.value = pid;
@@ -2142,10 +2140,29 @@ if(retestAny && !retestOK){
   S.consentAtISO = now.toISOString();
   S.consentAtKST = toKSTString(now);
 
-  // UI 표시(버튼 옆)
-  const top = gid('consentSignedAt_top');
-  if(top) top.textContent = `동의 시각: ${S.consentAtKST}`;
-    
+  // ✅ 동의 시각 표시 (지금 HTML에 존재하는 id는 consentSignedAt_inline임)
+  const inline = gid('consentSignedAt_inline');
+  if(inline) inline.textContent = `동의 시각: ${S.consentAtKST}`;
+
+  // ✅ 서명 완료 처리
+  consentSigned = true;
+
+  // ✅ 버튼 색상/활성 스텝 처리
+  const startBtn = gid('btn_consent_start');
+  const nextBtn  = gid('btn_consent_next');
+
+  if(startBtn){
+    startBtn.classList.remove('primary'); // 회색톤으로
+    startBtn.disabled = true;
+  }
+  if(nextBtn){
+    nextBtn.classList.add('primary');     // 다음을 파란색으로
+    nextBtn.disabled = false;
+  }
+
+  toggleConsentBtn();
+}
+
 function onConsentNext(){
   if(!consentSigned) return;
   go('screen_vfq');   // 무조건 2페이지(VFQ)로
@@ -2218,13 +2235,6 @@ if(sb){
   sb.textContent = '설문 완료'; // 또는 '제출'
 }
 }
-
-// ✅ 버튼 색상 초기화
-const startBtn = gid('btn_consent_start');
-const nextBtn  = gid('btn_consent_next');
-
-if(startBtn) startBtn.classList.add('primary');   // 다시 파란색
-if(nextBtn)  nextBtn.classList.remove('primary'); // 다시 회색
 
 </script>
 </body>
