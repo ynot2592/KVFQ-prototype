@@ -1223,7 +1223,7 @@
 
     <div class="row" style="margin-top:12px">
       <button class="btn primary" id="submitVFQ">설문 완료</button>
-      <button class="btn" id="btn_to_calib" onclick="go('screen_calib')">다음(카메라 교정)</button>
+      <button class="btn" id="btn_to_calib_vfq" onclick="go('screen_calib')">다음(카메라 교정)</button>
       <button class="btn ghost" id="btn_vfq_back" onclick="go('screen_home')">처음으로</button>
     </div>
 
@@ -1410,6 +1410,7 @@ function toKSTString(d = new Date()){
 
   // '연구 설명문 전체 보기' 확인 완료 여부
   let fullDocConfirmed = false;
+  let consentSigned = false;
   const NPC_SPEED_MAX = 4.0; // NPC 이동 속도 경고 임계값(cm/s)  
   const screens=['screen_consent','screen_home','screen_camtest','screen_vfq','screen_thankyou','screen_calib','screen_npc','screen_pvt','screen_export']
   function go(id){
@@ -1997,19 +1998,14 @@ async function shareCSV(){
 
     // 설문형 모드에서는 자가측정 버튼 숨김
     if(APP_MODE === 'survey'){
-      const b = gid('btn_to_calib');
+      const b = gid('btn_to_calib_vfq');
       if(b) b.classList.add('hidden');
     }
 
     if(APP_MODE === 'survey'){
       const f = gid('home_pid_field');
       if(f) f.classList.add('hidden');
-    }
-
-    if(APP_MODE === 'survey'){
-      const b = gid('btn_to_calib');
-      if(b) b.classList.add('hidden');
-    }
+    }  
 
 const backBtn = gid('btn_vfq_back');
 if(backBtn){
@@ -2061,32 +2057,27 @@ if(backBtn){
 
   const hint = gid('consentHint');
   if(hint) hint.textContent = ok ? '' : ('미완료 : ' + msg.join(', '));
-}
+} 
 
-  let consentSigned = false;
-
-function normalizeRetestCode(){
-  const raw = (gid('retest_code')?.value || '').trim();
-  if(!raw) return '';
-  // 숫자 2자리만 허용
-  const two = raw.replace(/\D/g,'').slice(0,2);
-  return two;
-}
-
-// 성별/생년월일 기반 PID 생성 + (재검 코드 있으면 -K93 형태로 결합) + used_ids 중복 suffix
-function buildParticipantId(yyyymmdd, sex, retest2){
+// 생년월일 기반 PID 생성 + (재검 코드 있으면 -K93 형태로 결합) + used_ids 중복 suffix
+function buildParticipantId(yyyymmdd, ini, dig){
   const used = JSON.parse(localStorage.getItem('used_ids')||'[]');
   const baseDate = yyyymmdd || 'NA';
 
-  // 성 이니셜은 별도 입력을 안 받으니, sex를 붙일 수도 있지만(예: -M93) IRB/혼란 방지 위해 여기선 제외
-  // 대신 "재검 코드 2자리"만 붙임. 원하면 나중에 -M/-F 추가 가능.
-  let base = yyyymmdd || 'NA';
-if(retestOK){
-  base = `${base}-${ini}${dig}`;   // 19900101-K93
-}
+  // 재검자 코드가 완전하게 들어온 경우에만 붙임
+  const hasRetest = (typeof ini === 'string' && ini.length === 1) && (/^\d{2}$/.test(String(dig||'')));
 
-  let pid = base, i=2;
-  while(used.includes(pid)) { pid = base + '-' + i; i++; }
+  let base = baseDate;
+  if(hasRetest){
+    base = `${base}-${ini}${dig}`;   // 예: 19900101-K93
+  }
+
+  // 혹시 같은 PID가 이미 있으면 -2, -3 붙여서 유일하게
+  let pid = base, i = 2;
+  while(used.includes(pid)){
+    pid = `${base}-${i}`;
+    i++;
+  }
   return pid;
 }
 
@@ -2119,13 +2110,13 @@ if(retestAny && !retestOK){
 
   const yyyymmdd = birthVal ? birthVal.replaceAll('-','') : '';
 
-  const pid = buildParticipantId(yyyymmdd, sexVal, retest2);
+  const pid = buildParticipantId(yyyymmdd, ini, dig);
 
   // 상태 저장
   S.pid = pid;
   S.birth = yyyymmdd;
   S.sex = sexVal;
-  S.retest2 = retest2; // 나중에 시트/CSV에 필요하면 사용
+  S.retest2 = retestOK ? `${ini}${dig}` : ''; // 예: K93 또는 ''
 
   const pv = gid('pid_preview');
   if(pv) pv.value = pid;
