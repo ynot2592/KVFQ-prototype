@@ -697,8 +697,9 @@
 
 #consentHint{
   margin-top: 14px;
-  margin-bottom: 10px;
-  line-height: 1.4;
+  margin-bottom: 6px;  /* 버튼과 너무 멀면 이 값을 줄이면 됨 */
+  padding-left: 4px;   /* 재검자 박스 텍스트 시작선 맞추기 */
+  line-height: 1.35;
 }
 
 .retestField{ align-items:start; }
@@ -731,12 +732,18 @@
   gap:10px;
   flex-wrap:wrap;
 }
-#retest_initial{ width:140px; }
-#retest_digits{ width:220px; }
+#retest_initial{ width:140px; flex: 0 0 140px; }
+#retest_digits{ width:220px; flex: 0 0 220px; }
 
 #screen_consent .row{
   flex-wrap: nowrap;   /* 줄바꿈 방지 */
 }
+
+#screen_consent .row.consentActions{
+  margin-top: 0;
+  margin-bottom: 10px; /* 카드 하단과 여백 */
+}
+
 .signedAt{
   white-space: nowrap;
   overflow: hidden;
@@ -1132,7 +1139,7 @@
     </div>
 
     <div id="consentHint" class="small" style="color: var(--text);"></div>
-
+ 
     <div class="row" style="margin-top:12px; align-items:center; gap:10px;">
         <button class="btn primary" id="btn_consent_start" onclick="onConsentSign()" disabled>
             동의하고 시작하기
