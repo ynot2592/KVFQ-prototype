@@ -31,8 +31,8 @@
 @media (max-width:430px){
   .card{
     padding:10px 10px 16px; /* ✅ 모바일도 하단 여유 */
-    margin-left:-4px;
-    margin-right:-4px;
+    margin-left: 0;
+    margin-right: 0;
   }
 }
 
@@ -549,6 +549,51 @@
   gap: 10px;
 }
 
+/* ✅ retest_section은 기존 2열 field 그리드 규칙에서 제외 */
+#screen_consent .consentFormGrid #retest_section{
+  display: block;      /* grid 해제 */
+  padding: 8px 10px;   /* 다른 field와 톤 맞춤 */
+}
+
+/* ✅ 안내문 줄바꿈/폭 안정화 */
+#retest_section .retestTopNote{
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  flex-wrap: nowrap;   /* 배너/텍스트가 이상하게 꺾이는 것 방지 */
+}
+#retest_section .retestTopNote > div{
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ✅ 라벨+입력 줄(재검자 코드) */
+#retest_section .retestFieldRow{
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+#retest_section .retestInputs{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+#retest_section input{
+  min-width:0;
+}
+
+/* 모바일: 라벨 위 / 입력 아래 */
+@media (max-width: 430px){
+  #retest_section .retestFieldRow{ grid-template-columns: 1fr; align-items:start; }
+  #retest_section .retestLabel{ text-align:left; }
+}
+/* 아주 작은 폰: 입력 2칸도 세로 */
+@media (max-width: 360px){
+  #retest_section .retestInputs{ grid-template-columns: 1fr; }
+}
+
 /* 라벨(첫번째 자식: span)을 가운데 정렬처럼 */
 #screen_consent .consentFormGrid .field > span{
   text-align: center;
@@ -702,15 +747,19 @@
   line-height:1.35;
 }
 
-.optBadge{
-  flex:0 0 auto;
-  font-size:11px;
-  font-weight:800;
-  padding:2px 8px;
-  border-radius:999px;
-  color:#e6fbff;
+/* '선택' 배너 통일 */
+.badgeOptional{
+  display:inline-flex;
+  align-items:center;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
   background: rgba(34,211,238,.10);
-  border:1px solid rgba(34,211,238,.28);
+  border: 1px solid rgba(34,211,238,.28);
+  color: #e6fbff;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .retestTopNote{
@@ -825,7 +874,7 @@
 /* [예시] 붉은 박스 전체 높이 줄이기 */
 .question-block.example{
   padding: 8px 12px 0px;
-  margin: 8px -6px 8px;
+  margin: 8px 0 8px;
   margin-left: 0;
   margin-right: 0;
 }
@@ -925,69 +974,7 @@
 html, body{
   width: 100%;
   overflow-x: hidden; /* 가로 스크롤 근본 차단 */
-}
-
-/* ===== 재검 섹션(동의 페이지) : 안내+입력 한 덩어리 컴포넌트 ===== */
-.retestSection{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-}
-
-/* 안내 박스 */
-.retestSection .retestTopNote{
-  display:flex;
-  gap:8px;
-  align-items:flex-start;
-  padding:10px 12px;
-  border-radius:12px;
-  background: rgba(34,211,238,.06);
-  border: 1px dashed rgba(34,211,238,.18);
-  color: var(--muted);
-  line-height: 1.45;
-}
-
-/* "재검자 코드" 라벨 + 입력 */
-.retestFieldRow{
-  display: grid;
-  grid-template-columns: 160px 1fr; /* 데스크탑 라벨폭 */
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.retestLabel{
-  color: var(--muted);
-  font-size: 14px;
-  text-align: center;
-  line-height: 1.2;
-}
-
-/* 입력 2칸 */
-.retestInputs{
-  display: grid;
-  grid-template-columns: 160px 1fr; /* 이니셜(짧게) | 숫자(조금 더 넓게) */
-  gap: 10px;
-  min-width: 0;
-}
-
-.retestInputs input{
-  min-width: 0; /* ✅ grid overflow 방지 핵심 */
-}
-
-/* 모바일에서는 라벨 위로, 입력 아래로 */
-@media (max-width: 430px){
-  .retestFieldRow{
-    grid-template-columns: 1fr;
-    align-items: start;
-  }
-  .retestLabel{
-    text-align: left;
-  }
-  .retestInputs{
-    grid-template-columns: 1fr 1fr;
-  }
+} 
 }
 
 /* 아주 작은 폰(<=360)에서는 입력 2칸도 세로로 */
@@ -1005,6 +992,10 @@ html, body{
 /* 캔버스/긴 요소가 가로로 밀지 못하게 */
 #screen_vfq, #screen_consent, .card{
   min-width: 0;
+}
+
+#screen_consent .consentFormGrid #retest_section{
+  display: block; /* .field 공통 display:grid를 무력화 */
 }
 
 </style>
@@ -1231,7 +1222,6 @@ html, body{
              placeholder="숫자 2자리 (예: 74)" />
     </div>
   </div>
-</div>
 </div>
     </div>
 
