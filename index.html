@@ -12,14 +12,18 @@
   :root{--bg:#0b1020;--card:#141a2a;--muted:#a6b2d1;--text:#e6ebff;--accent:#4fd1ff}
   *{box-sizing:border-box;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
   body{margin:0;background:linear-gradient(180deg,#0b1020,#0f162b);color:var(--text)}
-  .wrap{max-width:980px;margin:0 auto;padding:20px}
+  .wrap{
+  max-width: 980px;
+  margin: 0 auto;
+  padding: clamp(12px, 3vw, 20px); /* 기기별 자연스러운 패딩 */
+}
   .card{
   background:var(--card);
   border:1px solid rgba(255,255,255,.08);
   border-radius:16px;
   padding:12px 12px 16px;   /*  아래만 16px로 여유 */
-  margin-left:-4px;             /* 모든 카드 좌우 확장 */
-  margin-right:-4px;
+  margin-left: 0;             /* 삭제: margin-left:-4px; margin-right:-4px; */
+  margin-right: 0;
   box-shadow:0 8px 30px rgba(0,0,0,.25);
 }
 
@@ -61,7 +65,7 @@
 
   /* VFQ VAS 전용 레이아웃 */
   .question-block{
-    margin: 18px -6px 12px;   /* 좌우만 확장 (원치 않으면 -6px -> 0) */
+    margin: 18px 0px 12px;   /* 좌우만 확장 (원치 않으면 -6px -> 0) */ /* 삭제: margin: 18px -6px 12px; */
     padding: 8px 12px 0px;  /* 좌우 padding 약간 증가 */
     border-radius: 10px;
     background:#10172a;
@@ -128,10 +132,10 @@
     margin-right: auto;
   }
 
-/* VFQ 카드만 양쪽 여백을 조금 줄여서 더 넓게 사용 */
+/* VFQ 카드만 양쪽 여백을 조금 줄여서 더 넓게 사용 */ /* 삭제: margin-left:-4px; margin-right:-4px; */
 #screen_vfq {
-  margin-left: -4px;
-  margin-right: -4px;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 /* VFQ 카드 내부 padding 줄여서 문항/캔버스 폭 확보 (핵심) */
@@ -709,23 +713,6 @@
   border:1px solid rgba(34,211,238,.28);
 }
 
-/* ✅ 재검자 입력칸 폭 안정화 */
-.retestRow{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-#retest_initial{
-  flex: 0 0 120px;     /* ✅ 너무 작아지지 않게 */
-  min-width: 120px;
-}
-
-#retest_digits{
-  flex: 1 1 140px;     /*  남는 공간을 가져가게 */
-  min-width: 140px;
-}
-
 .retestTopNote{
   margin-bottom: 6px;  /* 안내문과 입력칸 사이 간격 */
 }
@@ -935,26 +922,89 @@
   margin-right: 6px;
 }
 
-/* 2행(입력행) 안에서 3칸 구성: 라벨 | 이니셜 | 숫자 */
-#retest_field{
+html, body{
+  width: 100%;
+  overflow-x: hidden; /* 가로 스크롤 근본 차단 */
+}
+
+/* ===== 재검 섹션(동의 페이지) : 안내+입력 한 덩어리 컴포넌트 ===== */
+.retestSection{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* 안내 박스 */
+.retestSection .retestTopNote{
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  padding:10px 12px;
+  border-radius:12px;
+  background: rgba(34,211,238,.06);
+  border: 1px dashed rgba(34,211,238,.18);
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* "재검자 코드" 라벨 + 입력 */
+.retestFieldRow{
   display: grid;
-  grid-template-columns: 100px 1fr;
+  grid-template-columns: 160px 1fr; /* 데스크탑 라벨폭 */
   align-items: center;
   gap: 10px;
+  width: 100%;
 }
 
-/* 오른쪽 칸 안에서 "이니셜 | 숫자" 2칸 */
-#retest_field .retestRow{
+.retestLabel{
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* 입력 2칸 */
+.retestInputs{
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 160px 1fr; /* 이니셜(짧게) | 숫자(조금 더 넓게) */
   gap: 10px;
+  min-width: 0;
 }
 
-/* 모바일에서 너무 좁으면 2칸이 세로로 */
+.retestInputs input{
+  min-width: 0; /* ✅ grid overflow 방지 핵심 */
+}
+
+/* 모바일에서는 라벨 위로, 입력 아래로 */
+@media (max-width: 430px){
+  .retestFieldRow{
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .retestLabel{
+    text-align: left;
+  }
+  .retestInputs{
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* 아주 작은 폰(<=360)에서는 입력 2칸도 세로로 */
 @media (max-width: 360px){
-  #retest_field .retestRow{
+  .retestInputs{
     grid-template-columns: 1fr;
   }
+}
+
+/* 2열 그리드에서 재검 섹션은 항상 한 줄 전체 */
+.consentFormGrid #retest_section{
+  grid-column: 1 / -1;
+}
+
+/* 캔버스/긴 요소가 가로로 밀지 못하게 */
+#screen_vfq, #screen_consent, .card{
+  min-width: 0;
 }
 
 </style>
@@ -1154,32 +1204,32 @@
         <span>참여자 ID</span>
         <input id="pid_preview" readonly value="(동의 후 자동 생성)" />
       </div>
-      <div class="field" id="retest_notice" style="display:block;">
+      <!-- ✅ 재검자(2회) 영역: 안내+입력 한 덩어리로 묶음 (절대 분리 금지) -->
+<div class="field retestSection" id="retest_section">
   <div class="retestTopNote">
     <span class="badgeOptional">선택</span>
-    <div style="margin-top:6px; line-height:1.45;">
+    <div>
       ※ 2회 측정(신뢰도 검증) 대상자는 반드시 입력해주세요.<br>
       ※ 휴대폰 끝 2자리를 사용하세요. (전화번호 전체 입력 금지)
     </div>
   </div>
-</div>
 
-<div class="field" id="retest_field">
-  <span>재검자 코드 (2회 측정자만)</span>
+  <div class="retestFieldRow">
+    <span class="retestLabel">재검자 코드 (2회 측정자만)</span>
 
-  <div class="retestRow">
-    <input id="retest_initial"
-           type="text"
-           maxlength="1"
-           placeholder="이니셜 (예: K)" />
+    <div class="retestInputs">
+      <input id="retest_initial"
+             type="text"
+             maxlength="1"
+             placeholder="이니셜 (예: K)" />
 
-    <input id="retest_digits"
-           type="text"
-           maxlength="2"
-           inputmode="numeric"
-           placeholder="숫자 2자리 (예: 74)" />
+      <input id="retest_digits"
+             type="text"
+             maxlength="2"
+             inputmode="numeric"
+             placeholder="숫자 2자리 (예: 74)" />
+    </div>
   </div>
-</div>
 </div>
     </div>
 
