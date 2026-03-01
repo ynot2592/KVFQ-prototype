@@ -1653,6 +1653,7 @@ if (scoreElem && isExample) {
 
   // VFQ 화면 구성
   function setupVFQ(){
+    vasItems.length = 0;   // 리셋 시 redraw 목록 누적 방지
     const container = document.getElementById('questions');
     if(!container) return;
     container.innerHTML = "";
@@ -2093,7 +2094,7 @@ async function shareCSV(){
   if(hint) hint.textContent = ok ? '' : ('미완료 : ' + msg.join(', '));
 } 
 
-// 생년월일 기반 PID 생성 + (재검 코드 있으면 -K93 형태로 결합) + used_ids 중복 suffix
+// 생년월일 기반 PID 생성 + (재검 코드 있으면 -K74 형태로 결합) + used_ids 중복 suffix
 function buildParticipantId(yyyymmdd, ini, dig){
   const used = JSON.parse(localStorage.getItem('used_ids')||'[]');
   const baseDate = yyyymmdd || 'NA';
@@ -2103,7 +2104,7 @@ function buildParticipantId(yyyymmdd, ini, dig){
 
   let base = baseDate;
   if(hasRetest){
-    base = `${base}-${ini}${dig}`;   // 예: 19900101-K93
+    base = `${base}-${ini}${dig}`;   // 예: 19900101-K74
   }
 
   // 혹시 같은 PID가 이미 있으면 -2, -3 붙여서 유일하게
@@ -2135,7 +2136,7 @@ function onConsentSign(){
   const retestAny = (ini.length > 0 || dig.length > 0);
 
   if(retestAny && !retestOK){
-    alert('재검자 코드는 "성 이니셜 1글자 + 숫자 2자리"로 입력해주세요. 예: K93');
+    alert('재검자 코드는 "성 이니셜 1글자 + 숫자 2자리"로 입력해주세요. 예: K74');
     return;
   }
 
@@ -2185,19 +2186,6 @@ function onConsentSign(){
 function onConsentNext(){
   if(!consentSigned) return;
   go('screen_vfq');   // 무조건 2페이지(VFQ)로
-}
-
-// ✅ 버튼 색상 스텝 처리
-const startBtn = gid('btn_consent_start');
-const nextBtn  = gid('btn_consent_next');
-
-if(startBtn){
-  startBtn.classList.remove('primary'); // 회색톤으로
-  startBtn.disabled = true;
-}
-if(nextBtn){
-  nextBtn.classList.add('primary');     // 다음을 파란색으로
-  nextBtn.disabled = false;
 }
 
   // 보조: CSV 양식 다운로드 (빈 헤더)
