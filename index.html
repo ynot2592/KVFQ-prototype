@@ -1089,6 +1089,50 @@ html, body{
   color: var(--muted);      /* 기본색(회청색) */
 }
 
+/* 배너를 라벨 영역 안에 배치 */
+#screen_consent #retest_section .retestLabel{
+  position: relative;
+  text-align: left;          /* 왼쪽 정렬로 (배너가 왼쪽 상단에 자연스러움) */
+  line-height: 1.2;
+}
+
+/* 배너는 라벨 내부에서 위에 먼저 나오게 */
+#screen_consent #retest_section .retestBadge{
+  display:inline-flex;
+  margin-bottom: 6px;        /* 배너와 '재검자 코드' 사이 */
+}
+
+/* 제목만 따로 (필요시 조절용) */
+#screen_consent #retest_section .retestTitle{
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+/* 재검자 코드 field 내부 여백을 다른 필드 느낌으로 정돈 */
+#screen_consent #retest_section{
+  padding-top: 10px;
+  padding-bottom: 14px;     /* ✅ 입력칸 아래 여백 늘리기 */
+}
+
+/* 입력 2칸 묶음 아래에 여백 확보 */
+#screen_consent #retest_section .retestInputs{
+  margin-bottom: 4px;       /* 0~8px 취향 */
+}
+
+/* 안내문 위 여백도 다른 항목처럼 */
+#screen_consent #retest_section .retestTopNote{
+  margin-top: 2px;
+}
+
+/* 미완료 문구가 비어있으면 공간 줄이기 */
+#screen_consent #consentHint:empty{
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 </style>
 </head>
 <body>
@@ -1290,18 +1334,17 @@ html, body{
  <!-- ✅ 재검자(2회) 영역: 안내+입력 한 덩어리로 묶음 (절대 분리 금지) -->
 <div class="field retestSection" id="retest_section">
   <div class="retestTopNote">
-  <span class="badgeOptional">선택</span>
-
-  <div class="retestNoteText">
-    ※ 2회 측정(신뢰도 검증) 대상자는 반드시 입력해주세요.<br>
-    ※ 휴대폰 끝 2자리를 사용하세요. (전화번호 전체 입력 금지)
+    <div class="retestNoteText">
+    ※ <b>2회 측정(신뢰도 검증) 대상자</b>는 <b>반드시</b> 입력해주세요.<br>
+    ※ 휴대폰 끝 2자리 등 <b>항상 동일하게 입력 가능한 2자리 숫자</b>를 사용하세요.
   </div>
 </div>
 
   <div class="retestFieldRow">
     <span class="retestLabel">
-        재검자 코드<br>
-        <span class="small">(2회 측정자만)</span>
+       <span class="badgeOptional retestBadge">선택</span>
+       <span class="retestTitle">재검자 코드</span><br>
+       <span class="small">(2회 측정자만)</span>
     </span>
 
     <div class="retestInputs">
@@ -1331,13 +1374,14 @@ html, body{
 </div>
 
 <span id="consentSignedAt_inline" class="small signedAt"></span>
-<div id="consentNextHint" class="small"></div>
 
 <!-- 2줄: 다음 버튼(아래로) -->
 <div class="row consentRow2">
   <button class="btn primary" id="btn_consent_next" onclick="onConsentNext()" disabled>
     다음
   </button>
+
+<div id="consentNextHint" class="small"></div>
 </div>   
     </div>
 </div>
