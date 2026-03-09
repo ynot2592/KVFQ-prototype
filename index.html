@@ -965,8 +965,8 @@ html, body{
 }
 
 #screen_consent #retest_section{
-  background: rgba(34,211,238,.05);
-  border: 1px solid rgba(34,211,238,.18);
+  background: rgba(18,32,58,.88);
+  border: 1px solid rgba(79,209,255,.18);
 }
 
 /* 캔버스/긴 요소가 가로로 밀지 못하게 */
@@ -1058,7 +1058,7 @@ html, body{
   margin-top: 6px;
 }
 
-/* 3) '재검자 코드' 라벨을 다른 항목과 같은 크기(14px) + 가운데 */
+/* 3) '재검자 코드' 라벨을 다른 항목과 살짝 크게(14px) + 가운데 */
 #screen_consent #retest_section .retestLabel{
   font-size: 15px;            /* 살짝 크게 */
   font-weight: 700;
@@ -1137,6 +1137,63 @@ html, body{
   margin-bottom: 0;
   padding-top: 0;
   padding-bottom: 0;
+}
+
+/* ===== 재검자 안내문: ※ 기준 정렬 ===== */
+#screen_consent #retest_section .retestNoteText{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+#screen_consent #retest_section .noteLine{
+  display:grid;
+  grid-template-columns: 16px 1fr;
+  column-gap:8px;
+  align-items:start;
+}
+
+#screen_consent #retest_section .noteBullet{
+  display:block;
+  text-align:center;
+  color: var(--muted);
+  font-weight:700;
+  line-height:1.45;
+}
+
+#screen_consent #retest_section .noteExample{
+  padding-left:24px;   /* bullet 16px + gap 8px */
+  color: var(--muted);
+  line-height:1.45;
+}
+
+
+/* ===== 재검자 라벨 가운데 정렬 ===== */
+#screen_consent #retest_section .retestLabel{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  line-height:1.2;
+  color: var(--muted);
+  font-size:14px;
+}
+
+#screen_consent #retest_section .retestLabel .retestBadge{
+  margin:0 0 8px 0;
+}
+
+#screen_consent #retest_section .retestLabel .retestTitle{
+  font-size:15px;
+  font-weight:700;
+  color:#dbe6ff;
+}
+
+#screen_consent #retest_section .retestLabel .small{
+  margin-top:4px;
+  font-size:12px;
+  color: var(--muted);
 }
 
 </style>
@@ -1334,16 +1391,26 @@ html, body{
       </div>
       <div class="field">
         <span>참여자 ID</span>
-        <input id="pid_preview" readonly value="(동의 후 자동 생성)" />
+        <input id="pid_preview" readonly value="(동의 후 자동 생성됨)" />
       </div>
 
  <!-- ✅ 재검자(2회) 영역: 안내+입력 한 덩어리로 묶음 (절대 분리 금지) -->
 <div class="field retestSection" id="retest_section">
   <div class="retestTopNote">
-    <div class="retestNoteText">
-    ※ <b>2회 측정</b>(신뢰도 검증) <b>대상자</b>는 아래의 <b>재검자 코드</b>를 <b>반드시</b> 입력해주세요.<br>
-    ※ <b>항상 동일하게 입력 가능한</b> 영문과 숫자를 입력하시기 바랍니다.<br>
-       <b>ex. 영문 1개(ex. 이름의 성 이니셜) + 숫자 2개(휴대폰 끝 2자리 등)</b> 
+  <div class="retestNoteText">
+    <div class="noteLine">
+      <span class="noteBullet">※</span>
+      <span><b>2회 측정</b>(신뢰도 검증) <b>대상자</b>는 아래의 <b>재검자 코드</b>를 <b>반드시</b> 입력해주세요.</span>
+    </div>
+
+    <div class="noteLine">
+      <span class="noteBullet">※</span>
+      <span><b>항상 동일하게 입력 가능한</b> 영문과 숫자를 입력하시기 바랍니다.</span>
+    </div>
+
+    <div class="noteExample">
+      <b>ex. 영문 1개(ex. 이름의 성 이니셜) + 숫자 2개(휴대폰 끝 2자리 등)</b>
+    </div>
   </div>
 </div>
 
