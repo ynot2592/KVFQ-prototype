@@ -964,6 +964,11 @@ html, body{
   grid-column: 1 / -1;
 }
 
+#screen_consent #retest_section{
+  background: rgba(34,211,238,.05);
+  border: 1px solid rgba(34,211,238,.18);
+}
+
 /* 캔버스/긴 요소가 가로로 밀지 못하게 */
 #screen_vfq, #screen_consent, .card{
   min-width: 0;
@@ -1055,8 +1060,9 @@ html, body{
 
 /* 3) '재검자 코드' 라벨을 다른 항목과 같은 크기(14px) + 가운데 */
 #screen_consent #retest_section .retestLabel{
-  font-size: 14px;            /* ✅ 동일 크기 고정 */
-  color: var(--muted);
+  font-size: 15px;            /* 살짝 크게 */
+  font-weight: 700;
+  color: #dbe6ff;
   text-align: center;         /* ✅ 가운데 정렬 */
   line-height: 1.2;
 }
@@ -1335,8 +1341,9 @@ html, body{
 <div class="field retestSection" id="retest_section">
   <div class="retestTopNote">
     <div class="retestNoteText">
-    ※ <b>2회 측정(신뢰도 검증) 대상자</b>는 <b>반드시</b> 입력해주세요.<br>
-    ※ 휴대폰 끝 2자리 등 <b>항상 동일하게 입력 가능한 2자리 숫자</b>를 사용하세요.
+    ※ <b>2회 측정</b>(신뢰도 검증) <b>대상자</b>는 아래의 <b>재검자 코드</b>를 <b>반드시</b> 입력해주세요.<br>
+    ※ <b>항상 동일하게 입력 가능한</b> 영문과 숫자를 입력하시기 바랍니다.<br>
+       <b>ex. 영문 1개(ex. 이름의 성 이니셜) + 숫자 2개(휴대폰 끝 2자리 등)</b> 
   </div>
 </div>
 
@@ -1667,19 +1674,19 @@ function toKSTString(d = new Date()){
 
   const vfqQuestions = [
     "눈의 건조함:",
-    "눈물 흘림:",
-    "눈이 자극되거나, 이물감이 있거나(모래 낀 느낌 등), 화끈거림이 있다:",
-    "눈 또는 눈 주위 통증이 있다:",
+    "눈에 눈물이 고이거나 흐른다:",
+    "눈이 자극되거나, 따갑거나(화끈거림), 모래 낀 것 처럼 느껴진다:",
+    "안구 또는 눈 주위에 통증이 있다:",
     "눈에 무거운 느낌이 있다:",
-    "글을 읽을 때 줄을 따라 읽기 어렵다:",
+    "줄을 따라 읽기 어렵다:",
     "초점을 맞추기 어렵다:",
-    "글자가 떨리거나 점프하듯 움직인다:",
-    "글자가 뿌옇게(흐리게) 보인다:",
+    "글자가 떨리거나 튀는(움직이는) 것처럼 보인다:",
+    "글자가 뿌옇게 보인다:",
     "빛에 의한 눈부심:",
     "흐릿한 시야:",
-    "겹쳐보임 혹은 물체가 두 개로 보임(복시):",
+    "복시(물체가 두 개로 보임):",
     "두통:",
-    "뒷 목 통증:",
+    "뒷목 통증:",
     "어지러움:",
     "메스꺼움:",
     "정신적 피로:"
@@ -2391,7 +2398,7 @@ function resetAll(){
   if(gid('sex')) gid('sex').value = '';
   if(gid('retest_initial')) gid('retest_initial').value = '';
   if(gid('retest_digits')) gid('retest_digits').value = '';
-  if(gid('pid_preview')) gid('pid_preview').value = '(동의 후 자동 생성)';  
+  if(gid('pid_preview')) gid('pid_preview').value = '(동의 후 자동 생성됨)';  
 
   // 동의 시각 표시 초기화 및 다음 버튼 안내문 초기화
   if(gid('consentSignedAt_inline')) gid('consentSignedAt_inline').textContent = '';
