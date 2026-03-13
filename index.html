@@ -1229,6 +1229,27 @@ html, body{
   line-height:1.0;
 }
 
+#screen_consent #retest_section .retestExample{
+  text-align:center;
+  margin-top:6px;
+  margin-bottom:10px;
+  font-size:13px;
+  color:#e6ebff;
+  font-weight:600;
+}
+
+#screen_consent #retest_section .retestTitle{
+  display:block;
+  margin-bottom:1px;
+}
+
+#screen_consent #retest_section .retestLabel .small{
+  display:block;
+  margin-top:-1px;
+  font-size:12px;
+  line-height:1.0;
+}
+
 </style>
 </head>
 <body>
@@ -1439,20 +1460,20 @@ html, body{
     <div class="noteLine">
       <span class="noteBullet">※</span>
       <span><b>항상 동일하게 입력 가능한</b> 영문과 숫자를 입력하시기 바랍니다.</span>
-    </div>
-
-    <div class="noteExample">
-      <b>ex. 영문 1개(ex. 이름의 성 이니셜) + 숫자 2개(휴대폰 끝 2자리 등)</b>
-    </div>
+    </div>    
   </div>
 </div>
 
   <div class="retestFieldRow">
     <span class="retestLabel">
        <span class="badgeOptional retestBadge">선택</span>
-       <span class="retestTitle">재검자 코드</span><br>
+       <span class="retestTitle">재검자 코드</span>
        <span class="small">(2회 측정자만)</span>
     </span>
+
+<div class="noteExample">
+      <b>ex. 영문 1개(ex. 이름의 성 이니셜) + 숫자 2개(휴대폰 끝 2자리 등)</b>
+    </div>
 
     <div class="retestInputs">
       <input id="retest_initial"
