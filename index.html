@@ -950,7 +950,6 @@ html, body{
   width: 100%;
   overflow-x: hidden; /* 가로 스크롤 근본 차단 */
 } 
-}
 
 /* 아주 작은 폰(<=360)에서는 입력 2칸도 세로로 */
 @media (max-width: 360px){
@@ -1047,7 +1046,7 @@ html, body{
 /* 안내문 글자 크기: 다른 라벨과 동일하게 14px로 */
 #screen_consent #retest_section .retestNoteText{
   font-size: 14px;            /* ✅ 요청대로 동일 크기 */
-  color: var(--muted);
+  color: #e6ebff;
   line-height: 1.35;
 }
 
@@ -1156,15 +1155,16 @@ html, body{
 #screen_consent #retest_section .noteBullet{
   display:block;
   text-align:center;
-  color: var(--muted);
+  color: #e6ebff;
   font-weight:700;
   line-height:1.45;
 }
 
 #screen_consent #retest_section .noteExample{
-  padding-left:24px;   /* bullet 16px + gap 8px */
-  color: var(--muted);
+  padding-left: 0;   /* bullet 16px + gap 8px */
+  color: #ffffff;
   line-height:1.45;
+  font-weight:700;
 }
 
 
@@ -1194,6 +1194,39 @@ html, body{
   margin-top:4px;
   font-size:12px;
   color: var(--muted);
+}
+
+/* ===== 재검 라벨 최종 정리 ===== */
+#screen_consent #retest_section .retestLabel{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  line-height:1.0;
+  color: var(--muted);
+  font-size:14px;
+}
+
+#screen_consent #retest_section .retestLabel .retestBadge{
+  margin: 0 0 4px 0;
+}
+
+#screen_consent #retest_section .retestLabel .retestTitle{
+  font-size:15px;
+  font-weight:700;
+  color:#dbe6ff;
+  line-height:1.0;
+  margin:0;
+  padding:0;
+}
+
+#screen_consent #retest_section .retestLabel .small{
+  display:block;
+  margin-top: 1px;
+  font-size:12px;
+  color: var(--muted);
+  line-height:1.0;
 }
 
 </style>
