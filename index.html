@@ -1655,8 +1655,7 @@ html, body{
 </div>
     </div>
 
-    <div id="consentHint" class="small" style="color: var(--text);"></div>
-    <div id="consentLockGuide" class="small"></div>    
+    <div id="consentHint" class="small" style="color: var(--text);"></div>    
 
     <!-- 1줄: 동의 버튼 + 동의완료시각 -->
 <div class="row consentRow1">
@@ -1665,6 +1664,7 @@ html, body{
   </button>  
 </div>
 
+<div id="consentLockGuide" class="small"></div>
 <span id="consentSignedAt_inline" class="small signedAt"></span>
 
 <!-- 2줄: 다음 버튼(아래로) -->
@@ -2764,7 +2764,7 @@ function onConsentSign(){
   if(nh) nh.textContent = '왼쪽의 다음 버튼을 누르면 다음 페이지로 이동합니다.';
 
     // ✅ 서명 완료 처리
-  consentSigned = true;
+  consentSigned = true;  
 
   // ✅ 기본정보 잠금
   lockConsentInputs();
