@@ -2682,8 +2682,7 @@ function setupBirthSelects(){
   if(!sexOk)   msg.push('성별');
 
     const hint = gid('consentHint');
-  if(hint) hint.textContent = ok ? '' : ('미완료 : ' + msg.join(', ')); 
-}
+  if(hint) hint.textContent = ok ? '' : ('미완료 : ' + msg.join(', '));
 
 // 생년월일 기반 PID 생성 + (재검 코드 있으면 -K74 형태로 결합) + used_ids 중복 suffix
 function buildParticipantId(yyyymmdd, ini, dig){
