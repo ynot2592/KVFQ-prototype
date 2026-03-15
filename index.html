@@ -1341,7 +1341,7 @@ html, body{
 
 @media (max-width: 430px){
   #screen_consent .birthSelects{
-    grid-template-columns: 1.45fr 1.05fr 1.05fr;
+    grid-template-columns: 1.45fr 1.05fr 1fr;
   }
 }
 
@@ -1895,21 +1895,24 @@ function toKSTString(d = new Date()){
   const NPC_SPEED_MAX = 4.0; // NPC 이동 속도 경고 임계값(cm/s)  
   const screens=['screen_consent','screen_home','screen_camtest','screen_vfq','screen_thankyou','screen_calib','screen_npc','screen_pvt','screen_export']
   function go(id){
-     screens.forEach(s => document.getElementById(s).classList.add('hidden'));
-     document.getElementById(id).classList.remove('hidden');
+  screens.forEach(s => document.getElementById(s).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
 
-     if(id === 'screen_export'){
-       const b = document.getElementById('iabWarn');
-       if(b) b.classList.toggle('hidden', !isInApp);
-     }
-
-     // ✅ 화면 전환 시 항상 맨 위로 이동
-     window.scrollTo({ top: 0, behavior: 'auto' });
-     document.documentElement.scrollTop = 0;
-     document.body.scrollTop = 0;
+  if(id === 'screen_export'){
+    const b = document.getElementById('iabWarn');
+    if(b) b.classList.toggle('hidden', !isInApp);
   }
-}
 
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+
+  requestAnimationFrame(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  });
+}
 
   // ---------- VFQ VAS 17문항 (오늘 만든 캔버스 버전) ----------
   // 이제는 항상 어두운 배경(지금 앱 디자인)에 맞게 흰색 선 사용
