@@ -1364,27 +1364,24 @@ html, body{
   text-align:left;
 }
 
-/* ===== 동의 버튼 아래 안내문 ===== */
+/* ===== 동의 버튼 위 안내문 ===== */
 #screen_consent #consentLockGuide{
-  margin-top: 6px;       /* 버튼과 가깝게 */
-  margin-bottom: 10px;   /* 동의 시각과는 조금 띄우기 */
+  margin-top: 10px;
+  margin-bottom: 10px;
   padding-left: 2px;
   padding-right: 2px;
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: 12.5px;
+  line-height: 1.45;
   color: var(--muted);
 }
 
-/* 동의 시각은 그 아래에 자연스럽게 */
-#screen_consent #consentSignedAt_inline{
-  display:block;
-  margin-top: 0;
-  margin-bottom: 12px;
-  padding-left: 2px;
-  padding-right: 2px;
+#screen_consent #consentLockGuide b{
   color: var(--text);
-  font-size: 12px;
-  line-height: 1.35;
+  font-weight: 700;
+}
+
+#screen_consent #consentLockGuide:empty{
+  display: none;
 }
 
 /* ===== 동의 후 기본정보 잠금 ===== */
@@ -1659,17 +1656,13 @@ html, body{
     </div>
 
     <div id="consentHint" class="small" style="color: var(--text);"></div>
-    
+    <div id="consentLockGuide" class="small"></div>    
 
     <!-- 1줄: 동의 버튼 + 동의완료시각 -->
 <div class="row consentRow1">
   <button class="btn primary" id="btn_consent_start" onclick="onConsentSign()" disabled>
     동의하고 시작하기 
   </button>  
-</div>
-
-<div id="consentLockGuide" class="small">
-  동의 후에는 입력 정보(생년월일, 성별, 재검자 코드)를 수정할 수 없습니다. 입력 내용을 다시 확인해주세요.
 </div>
 
 <span id="consentSignedAt_inline" class="small signedAt"></span>
@@ -2688,9 +2681,18 @@ function setupBirthSelects(){
   if(!birthOk) msg.push('생년월일');
   if(!sexOk)   msg.push('성별');
 
-  const hint = gid('consentHint');
+    const hint = gid('consentHint');
   if(hint) hint.textContent = ok ? '' : ('미완료 : ' + msg.join(', '));
-} 
+
+  const lockGuide = gid('consentLockGuide');
+  if(lockGuide){
+    if(consentSigned){
+      lockGuide.innerHTML = '입력 정보를 <b>수정할 수 없습니다</b>. 수정을 원하시면 <b>종료 후 다시 시작</b>해 주세요.';
+    }else{
+      lockGuide.innerHTML = '<b>동의 후</b>에는 기본정보를 <b>수정할 수 없습니다</b>. 입력 내용을 다시 확인해주세요.';
+    }
+  }
+}
 
 // 생년월일 기반 PID 생성 + (재검 코드 있으면 -K74 형태로 결합) + used_ids 중복 suffix
 function buildParticipantId(yyyymmdd, ini, dig){
@@ -2765,8 +2767,13 @@ function onConsentSign(){
   const nh = gid('consentNextHint');
   if(nh) nh.textContent = '왼쪽의 다음 버튼을 누르면 다음 페이지로 이동합니다.';
 
-  // ✅ 서명 완료 처리
-  consentSigned = true; 
+    // ✅ 서명 완료 처리
+  consentSigned = true;
+
+  const lockGuide = gid('consentLockGuide');
+  if(lockGuide){
+    lockGuide.innerHTML = '입력 정보를 <b>수정할 수 없습니다</b>. 수정을 원하시면 <b>종료 후 다시 시작</b>해 주세요.';
+  }
 
   // ✅ 기본정보 잠금
   lockConsentInputs();
@@ -2822,6 +2829,9 @@ function resetAll(){
   if(gid('consentSignedAt_inline')) gid('consentSignedAt_inline').textContent = '';
   if(gid('consentTime')) gid('consentTime').textContent = '';
   if(gid('consentNextHint')) gid('consentNextHint').textContent = '';
+  if(gid('consentLockGuide')){
+    gid('consentLockGuide').innerHTML = '<b>동의 후</b>에는 기본정보를 <b>수정할 수 없습니다</b>. 입력 내용을 다시 확인해주세요.';
+  }
 
   // VFQ 답 초기화
   for(let i=0;i<vfqAnswers.length;i++) vfqAnswers[i]=null;
