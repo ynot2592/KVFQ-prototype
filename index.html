@@ -1253,7 +1253,7 @@ html, body{
 /* ===== 재검자 코드 예시 문구 조정 ===== */
 #screen_consent #retest_section .noteExample{
   margin-top: 8px;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   text-align: center;
   font-size: 13px;
   line-height: 1.4;
@@ -1301,6 +1301,31 @@ html, body{
   font-size:12px;
   color: var(--muted);
   line-height:1.1;
+}
+
+/* ===== 생년월일: 연/월/일 선택형 ===== */
+#screen_consent .birthField{
+  display:grid;
+  grid-template-columns: 100px 1fr;
+  align-items:center;
+  gap:10px;
+}
+
+#screen_consent .birthSelects{
+  display:grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap:8px;
+  min-width:0;
+}
+
+#screen_consent .birthSelects select{
+  min-width:0;
+}
+
+@media (max-width: 430px){
+  #screen_consent .birthSelects{
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 }
 
 </style>
@@ -1484,10 +1509,25 @@ html, body{
 
     <!-- 기본 정보 -->
     <div class="grid two consentFormGrid">
-      <div class="field">
+    <div class="field birthField">
         <span>생년월일<br><span class="small">(YYYY-MM-DD)</span></span>
-        <input id="birth" type="date"/>
-      </div>
+
+         <div class="birthSelects">
+            <select id="birth_year">
+                <option value="">연도</option>
+            </select>
+
+            <select id="birth_month">
+                <option value="">월</option>
+            </select>
+
+            <select id="birth_day">
+                <option value="">일</option>
+            </select>
+         </div>
+
+         <input id="birth" type="hidden" />
+    </div>
       <div class="field">
         <span>성별</span>
         <select id="sex">
@@ -2352,7 +2392,7 @@ async function shareCSV(){
     const requiredChecks = ['c_main','c_esign','c_camera'];
 
     // 이벤트 바인딩
-    [...requiredChecks, 'birth', 'sex'].forEach(id=>{
+    [...requiredChecks, 'sex'].forEach(id=>{
       const el = document.getElementById(id);
       if(!el) return;
       ['input','change','click','keyup','blur'].forEach(evt => el.addEventListener(evt, toggleConsentBtn));
@@ -2377,19 +2417,9 @@ async function shareCSV(){
         });
       }
     })();
-
+    
+    setupBirthSelects();
     toggleConsentBtn();
-
-    // ✅ 생년월일은 오늘 이후 날짜 선택 불가
-    (function setBirthMax(){
-      const b = document.getElementById('birth');
-      if(!b) return;
-      const today = new Date();
-      const yyyy = today.getFullYear();
-      const mm = String(today.getMonth()+1).padStart(2,'0');
-      const dd = String(today.getDate()).padStart(2,'0');
-      b.max = `${yyyy}-${mm}-${dd}`;
-    })();
 
     // --- '연구 설명문 전체 보기' 펼치면 배지 '확인 완료'로 변경 ---
     (function trackFullDetailsOpen(){
@@ -2426,6 +2456,86 @@ async function shareCSV(){
 })();
 
   function gid(id){ return document.getElementById(id) }
+
+  function pad2(n){
+  return String(n).padStart(2, '0');
+}
+
+function updateBirthHidden(){
+  const y = gid('birth_year')?.value || '';
+  const m = gid('birth_month')?.value || '';
+  const d = gid('birth_day')?.value || '';
+  const birth = gid('birth');
+
+  if(!birth) return;
+
+  if(y && m && d){
+    birth.value = `${y}-${pad2(m)}-${pad2(d)}`;
+  }else{
+    birth.value = '';
+  }
+}
+
+function setupBirthSelects(){
+  const yearEl  = gid('birth_year');
+  const monthEl = gid('birth_month');
+  const dayEl   = gid('birth_day');
+  const birthEl = gid('birth');
+
+  if(!yearEl || !monthEl || !dayEl || !birthEl) return;
+
+  const currentYear = new Date().getFullYear();
+
+  yearEl.innerHTML = '<option value="">연도</option>';
+  for(let y = currentYear; y >= 1950; y--){
+    yearEl.innerHTML += `<option value="${y}">${y}</option>`;
+  }
+
+  monthEl.innerHTML = '<option value="">월</option>';
+  for(let m = 1; m <= 12; m++){
+    monthEl.innerHTML += `<option value="${m}">${m}월</option>`;
+  }
+
+  function refreshDays(){
+    const y = Number(yearEl.value);
+    const m = Number(monthEl.value);
+
+    dayEl.innerHTML = '<option value="">일</option>';
+
+    if(!y || !m){
+      updateBirthHidden();
+      toggleConsentBtn();
+      return;
+    }
+
+    const lastDay = new Date(y, m, 0).getDate();
+    for(let d = 1; d <= lastDay; d++){
+      dayEl.innerHTML += `<option value="${d}">${d}일</option>`;
+    }
+
+    updateBirthHidden();
+    toggleConsentBtn();
+  }
+
+  yearEl.addEventListener('change', ()=>{
+    refreshDays();
+    updateBirthHidden();
+    toggleConsentBtn();
+  });
+
+  monthEl.addEventListener('change', ()=>{
+    refreshDays();
+    updateBirthHidden();
+    toggleConsentBtn();
+  });
+
+  dayEl.addEventListener('change', ()=>{
+    updateBirthHidden();
+    toggleConsentBtn();
+  });
+
+  updateBirthHidden();
+}
 
   function toggleConsentBtn(){
   const requiredChecks = ['c_main','c_esign','c_camera'];
@@ -2572,6 +2682,9 @@ function resetAll(){
   ['c_main','c_esign','c_camera'].forEach(id=>{ const el=gid(id); if(el) el.checked=false; });
   if(gid('birth')) gid('birth').value = '';
   if(gid('sex')) gid('sex').value = '';
+  if(gid('birth_year')) gid('birth_year').value = '';
+  if(gid('birth_month')) gid('birth_month').value = '';
+  if(gid('birth_day')) gid('birth_day').innerHTML = '<option value="">일</option>';
   if(gid('retest_initial')) gid('retest_initial').value = '';
   if(gid('retest_digits')) gid('retest_digits').value = '';
   if(gid('pid_preview')) gid('pid_preview').value = '(동의 후 자동 생성됨)';  
