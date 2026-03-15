@@ -1253,7 +1253,7 @@ html, body{
 /* ===== 재검자 코드 예시 문구 조정 ===== */
 #screen_consent #retest_section .noteExample{
   margin-top: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   text-align: center;
   font-size: 13px;
   line-height: 1.4;
@@ -1270,6 +1270,37 @@ html, body{
   display: block;
   content: "";
   margin-top: 2px;
+}
+
+/* ===== 재검자 코드 제목/부제 간격 미세조정 ===== */
+#screen_consent #retest_section .retestLabel{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  line-height:1.15;
+  color: var(--muted);
+  font-size:14px;
+}
+
+#screen_consent #retest_section .retestLabel .retestBadge{
+  margin: 0 0 6px 0;
+}
+
+#screen_consent #retest_section .retestLabel .retestTitle{
+  font-size:15px;
+  font-weight:700;
+  color:#dbe6ff;
+  line-height:1.1;
+}
+
+#screen_consent #retest_section .retestLabel .small{
+  display:block;
+  margin-top: 4px;   /* ✅ 여기 핵심 */
+  font-size:12px;
+  color: var(--muted);
+  line-height:1.1;
 }
 
 </style>
@@ -1476,7 +1507,7 @@ html, body{
   <div class="retestNoteText">
     <div class="noteLine">
       <span class="noteBullet">※</span>
-      <span><b>2회 측정</b>(신뢰도 검증) <b>대상자</b>는 아래의 <b>재검자 코드</b>를 <b>반드시</b> 입력해주세요.</span>
+      <span><b>2회 측정 대상자</b>(신뢰도 검증 참여자 등)는 아래의 <b>재검자 코드</b>를 <b>반드시</b> 입력해주세요.</span>
     </div>
 
     <div class="noteLine">
@@ -1494,8 +1525,8 @@ html, body{
     </span>
 
 <div class="noteExample">
-      <b>영문 1개</b>와 <b>숫자 2개</b>를 입력해 주세요.<br>
-      <b>(예: 이름의 성 이니셜 + 휴대폰 끝 2자리)</b>
+      아래에 기억할 수 있는<b>영문 1개</b>와 <b>숫자 2개</b>를 입력해 주세요.<br>
+      <b>(예: 이름의 성 이니셜 + 휴대폰번호 끝 2자리)</b>
     </div>
 
     <div class="retestInputs">
