@@ -1895,11 +1895,18 @@ function toKSTString(d = new Date()){
   const NPC_SPEED_MAX = 4.0; // NPC 이동 속도 경고 임계값(cm/s)  
   const screens=['screen_consent','screen_home','screen_camtest','screen_vfq','screen_thankyou','screen_calib','screen_npc','screen_pvt','screen_export']
   function go(id){
-  screens.forEach(s=>document.getElementById(s).classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
-  if(id==='screen_export'){
-    const b = document.getElementById('iabWarn');
-    if(b) b.classList.toggle('hidden', !isInApp);
+     screens.forEach(s => document.getElementById(s).classList.add('hidden'));
+     document.getElementById(id).classList.remove('hidden');
+
+     if(id === 'screen_export'){
+       const b = document.getElementById('iabWarn');
+       if(b) b.classList.toggle('hidden', !isInApp);
+     }
+
+     // ✅ 화면 전환 시 항상 맨 위로 이동
+     window.scrollTo({ top: 0, behavior: 'auto' });
+     document.documentElement.scrollTop = 0;
+     document.body.scrollTop = 0;
   }
 }
 
