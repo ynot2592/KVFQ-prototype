@@ -1403,6 +1403,26 @@ html, body{
   -webkit-text-fill-color: #b8c3e0 !important;
 }
 
+#screen_thankyou .thanks-note{
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-bottom: 0;
+}
+
+#screen_thankyou .thanks-note .mark{
+  flex: 0 0 auto;
+  line-height: 1.6;
+}
+
+#screen_thankyou .thanks-note .txt{
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 </style>
 </head>
 <body>
@@ -1867,16 +1887,16 @@ html, body{
 
 <!-- 설문 완료 감사 페이지 -->
 <div class="card hidden" id="screen_thankyou">
-  <h2 style="text-align:center; margin-top:10px;">참여해주셔서 감사합니다</h2>
+  <h2 style="text-align:center; margin-top:30px; margin-bottom:18px;">참여해 주셔서 감사합니다</h2>
 
-  <div class="sectionBox" id="thanks_section" style="margin-top:14px;">
+  <div class="sectionBox" id="thanks_section" style="margin-top:20px;">
     <div class="sectionHead" style="justify-content:center;">
       <span>제출 완료</span>
     </div>
     <div class="sectionBody">
       <p style="margin:0; color:var(--muted); line-height:1.6;">
         설문이 정상적으로 제출되었습니다.
-        <br>종료하셔도 됩니다.
+        <br>아래 정보를 확인하신 후 종료해 주세요.
       </p>
 
       <div class="kpi" style="margin-top:12px;">
@@ -1884,12 +1904,14 @@ html, body{
         <div class="v">제출 시각(KST): <b id="thanks_time">-</b></div>
       </div>
 
-      <p class="small" style="margin-top:10px;">
-          ※ <b>2회 측정(신뢰도 검증) 대상자</b>는 위 참여자ID를 캡처하여 보관하고, 재참여 시 동일한 ID로 진행해주세요.
+      <p class="thanks-note" style="margin-top:18px;">
+          <span class="mark">※</span>
+          <span class="txt"><b>2회 측정 대상자</b>(신뢰도 검증 참여자 등)는 위 참여자ID를 캡처 또는 기록하여 보관하시고, 재참여 시 동일한 참여자ID로 진행해 주세요.</span>
       </p>
 
-      <p class="small" style="margin-top:10px;">
-        ※ 제출 후 화면을 닫기 전, 위 정보가 정상 표시되는지 확인해주세요.
+      <p class="thanks-note" style="margin-top:8px;">
+          <span class="mark">※</span>
+          <span class="txt">화면을 닫기 전, 위 참여자ID와 제출 시각이 정상적으로 표시되는지 확인해 주세요.</span>
       </p>
     </div>
   </div>
