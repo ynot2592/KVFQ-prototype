@@ -65,7 +65,8 @@
 
   /* VFQ VAS 전용 레이아웃 */
   .question-block{
-    margin: 18px 0px 12px;   /* 좌우만 확장 (원치 않으면 -6px -> 0) */ /* 삭제: margin: 18px -6px 12px; */
+    margin: 18px autopx 12px;   /* 좌우만 확장 (원치 않으면 -6px -> 0) */ /* 삭제: margin: 18px -6px 12px; */
+    max-width: 620px;
     padding: 8px 12px 0px;  /* 좌우 padding 약간 증가 */
     border-radius: 10px;
     background:#10172a;
@@ -76,7 +77,8 @@
 .question-block.example{
   background: rgba(239,68,68,.10);
   border: 1px solid rgba(239,68,68,.35);
-  margin: 10px -6px 10px;     /* 기존 question-block보다 작게 */
+  margin: 10px auto 10px;     /* 기존 question-block보다 작게 */
+  max-width: 620px;
   padding: 8px 12px 10px;     /* 내부도 살짝 압축 */
 }
 
@@ -122,13 +124,14 @@
   }
   .vas-canvas{
     width: 100%;
+    max-width: 560px;
     height: auto;         /* 세로 자동 */
     border-radius: 8px;
     margin-top: 8px;
     border:1px solid rgba(148,163,184,.6);
     background:#020617;
     display:block;
-    margin-left: 0;      /* 왼쪽 정렬 느낌 유지 */
+    margin-left: auto;      /* 왼쪽 정렬 느낌 유지 */
     margin-right: auto;
   }
 
@@ -1887,7 +1890,7 @@ html, body{
 
 <!-- 설문 완료 감사 페이지 -->
 <div class="card hidden" id="screen_thankyou">
-  <h2 style="text-align:center; margin-top:30px; margin-bottom:18px;">참여해 주셔서 감사합니다</h2>
+  <h2 style="text-align:center; margin-top:20px; margin-bottom:18px;">참여해 주셔서 감사합니다</h2>
 
   <div class="sectionBox" id="thanks_section" style="margin-top:20px;">
     <div class="sectionHead" style="justify-content:center;">
@@ -1906,7 +1909,7 @@ html, body{
 
       <p class="thanks-note" style="margin-top:18px;">
           <span class="mark">※</span>
-          <span class="txt"><b>2회 측정 대상자</b>(신뢰도 검증 참여자 등)는 위 참여자ID를 캡처 또는 기록하여 보관하시고, 재참여 시 동일한 참여자ID로 진행해 주세요.</span>
+          <span class="txt"><b>2회 측정 대상자</b>(신뢰도 검증 참여자 등)는 <b>위 참여자ID를 캡처하여 보관</b>하시고, <b>재참여 시 동일한 참여자ID로 진행</b>해 주세요.</span>
       </p>
 
       <p class="thanks-note" style="margin-top:8px;">
@@ -2030,7 +2033,7 @@ function toKSTString(d = new Date()){
   const vfqQuestions = [
     "눈의 건조함:",
     "눈에 눈물이 고이거나 흐른다:",
-    "눈이 자극되거나, 따갑거나(화끈거림), 모래 낀 것 처럼 느껴진다:",
+    "눈이 자극되거나, 따갑거나(화끈거림), 모래 낀 것처럼 느껴진다:",
     "안구 또는 눈 주위에 통증이 있다:",
     "눈에 무거운 느낌이 있다:",
     "줄을 따라 읽기 어렵다:",
@@ -2209,7 +2212,7 @@ if (scoreElem && isExample) {
 
   const title = document.createElement('div');
   title.className = 'question-title';
-  title.textContent = '예시) 아래와 같이 원하는 위치를 선택할 수 있습니다.';
+  title.textContent = '예시) 아래와 같이 어느 위치든 선택할 수 있습니다.';
 
   const canvas = document.createElement('canvas');
   canvas.className = 'vas-canvas example';
@@ -2812,7 +2815,7 @@ function onConsentSign(){
 
   const lockGuide = gid('consentLockGuide');
   if(lockGuide){
-    lockGuide.innerHTML = '<b>입력한 내용이 잘못된 경우</b>, 종료 후 다시 시작해 주세요.';
+    lockGuide.innerHTML = '<b>입력한 내용이 잘못된 경우</b>, 종료 후 <b>다시 시작</b>해 주세요.';
   }
   
   // 동의 시각 표시 (지금 HTML에 존재하는 id는 consentSignedAt_inline임) 와 다음버튼 안내
