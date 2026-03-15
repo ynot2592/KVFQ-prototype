@@ -1313,7 +1313,7 @@ html, body{
 
 #screen_consent .birthSelects{
   display:grid;
-  grid-template-columns: 1.8fr 0.9fr 0.9fr;
+  grid-template-columns: 1.5fr 1fr 1fr;
   gap:8px;
   min-width:0;
 }
@@ -1321,9 +1321,9 @@ html, body{
 #screen_consent .birthSelects select{
   min-width:0;
   width:100%;
-  font-size:14px;
+  font-size:13px;
   line-height:1.2;
-  padding:10px 28px 10px 10px;
+  padding:10px 18px 10px 8px;
 
   color: var(--text) !important;
   background:#0f1528 !important;
@@ -1339,15 +1339,16 @@ html, body{
   background:#fff;
 }
 
-#screen_consent .birthSelects select option{
-  color:#000;
-  background:#fff;
-}
-
 @media (max-width: 430px){
   #screen_consent .birthSelects{
-    grid-template-columns: 1.8fr 0.9fr 0.9fr;
+    grid-template-columns: 1.5fr 1fr 1fr;
   }
+}
+
+#screen_consent #birth_month,
+#screen_consent #birth_day{
+  font-size:13px;
+  padding:10px 14px 10px 8px;
 }
 
 </style>
@@ -2706,7 +2707,7 @@ function resetAll(){
   if(gid('sex')) gid('sex').value = '';
   if(gid('birth_year')) gid('birth_year').value = '';
   if(gid('birth_month')) gid('birth_month').value = '';
-  if(gid('birth_day')) gid('birth_day').innerHTML = '<option value="">일</option>';
+  if(gid('birth_day')) gid('birth_day').innerHTML = '<option value="" selected>일</option>';
   if(gid('retest_initial')) gid('retest_initial').value = '';
   if(gid('retest_digits')) gid('retest_digits').value = '';
   if(gid('pid_preview')) gid('pid_preview').value = '(동의 후 자동 생성됨)';  
