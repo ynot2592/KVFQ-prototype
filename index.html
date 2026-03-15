@@ -1313,18 +1313,20 @@ html, body{
 
 #screen_consent .birthSelects{
   display:grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
+  grid-template-columns: 1.8fr 0.9fr 0.9fr;
   gap:8px;
   min-width:0;
 }
 
 #screen_consent .birthSelects select{
   min-width:0;
+  font-size:14px;
+  padding:10px 28px 10px 10px;
 }
 
 @media (max-width: 430px){
   #screen_consent .birthSelects{
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1.8fr 0.9fr 0.9fr;
   }
 }
 
@@ -2493,7 +2495,7 @@ function setupBirthSelects(){
 
   monthEl.innerHTML = '<option value="">월</option>';
   for(let m = 1; m <= 12; m++){
-    monthEl.innerHTML += `<option value="${m}">${m}월</option>`;
+  monthEl.innerHTML += `<option value="${m}">${m}</option>`;
   }
 
   function refreshDays(){
@@ -2510,7 +2512,7 @@ function setupBirthSelects(){
 
     const lastDay = new Date(y, m, 0).getDate();
     for(let d = 1; d <= lastDay; d++){
-      dayEl.innerHTML += `<option value="${d}">${d}일</option>`;
+    dayEl.innerHTML += `<option value="${d}">${d}</option>`;
     }
 
     updateBirthHidden();
