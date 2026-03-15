@@ -1364,6 +1364,42 @@ html, body{
   text-align:left;
 }
 
+/* ===== 동의 버튼 아래 안내문 ===== */
+#screen_consent #consentLockGuide{
+  margin-top: 6px;       /* 버튼과 가깝게 */
+  margin-bottom: 10px;   /* 동의 시각과는 조금 띄우기 */
+  padding-left: 2px;
+  padding-right: 2px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+/* 동의 시각은 그 아래에 자연스럽게 */
+#screen_consent #consentSignedAt_inline{
+  display:block;
+  margin-top: 0;
+  margin-bottom: 12px;
+  padding-left: 2px;
+  padding-right: 2px;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+/* ===== 동의 후 기본정보 잠금 ===== */
+#screen_consent .locked-field{
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
+#screen_consent select.locked-field,
+#screen_consent input.locked-field{
+  background: #182033 !important;
+  color: #b8c3e0 !important;
+  -webkit-text-fill-color: #b8c3e0 !important;
+}
+
 </style>
 </head>
 <body>
@@ -1630,6 +1666,10 @@ html, body{
   <button class="btn primary" id="btn_consent_start" onclick="onConsentSign()" disabled>
     동의하고 시작하기 
   </button>  
+</div>
+
+<div id="consentLockGuide" class="small">
+  동의 후에는 입력 정보(생년월일, 성별, 재검자 코드)를 수정할 수 없습니다. 입력 내용을 다시 확인해주세요.
 </div>
 
 <span id="consentSignedAt_inline" class="small signedAt"></span>
@@ -2508,6 +2548,42 @@ async function shareCSV(){
   return String(n).padStart(2, '0');
 }
 
+function lockConsentInputs(){
+  const ids = [
+    'birth_year',
+    'birth_month',
+    'birth_day',
+    'sex',
+    'retest_initial',
+    'retest_digits'
+  ];
+
+  ids.forEach(id => {
+    const el = gid(id);
+    if(!el) return;
+    el.disabled = true;
+    el.classList.add('locked-field');
+  });
+}
+
+function unlockConsentInputs(){
+  const ids = [
+    'birth_year',
+    'birth_month',
+    'birth_day',
+    'sex',
+    'retest_initial',
+    'retest_digits'
+  ];
+
+  ids.forEach(id => {
+    const el = gid(id);
+    if(!el) return;
+    el.disabled = false;
+    el.classList.remove('locked-field');
+  });
+}
+
 function updateBirthHidden(){
   const y = gid('birth_year')?.value || '';
   const m = gid('birth_month')?.value || '';
@@ -2690,7 +2766,10 @@ function onConsentSign(){
   if(nh) nh.textContent = '왼쪽의 다음 버튼을 누르면 다음 페이지로 이동합니다.';
 
   // ✅ 서명 완료 처리
-  consentSigned = true;
+  consentSigned = true; 
+
+  // ✅ 기본정보 잠금
+  lockConsentInputs();
 
   // ✅ 버튼 색상/활성 스텝 처리
   const startBtn = gid('btn_consent_start');
@@ -2725,6 +2804,9 @@ function resetAll(){
   consentSigned = false;
   fullDocConfirmed = false;
 
+  // 기본정보 잠금 해제
+  unlockConsentInputs();
+
   // 체크박스/입력 초기화
   ['c_main','c_esign','c_camera'].forEach(id=>{ const el=gid(id); if(el) el.checked=false; });
   if(gid('birth')) gid('birth').value = '';
@@ -2758,6 +2840,9 @@ function resetAll(){
   }
   const d = gid('details_full');
   if(d) d.open = false;
+
+  // 생년월일 select 다시 세팅
+  setupBirthSelects();
 
   // VFQ 다시 그리기
   setupVFQ();
