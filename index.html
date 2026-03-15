@@ -1320,11 +1320,23 @@ html, body{
 
 #screen_consent .birthSelects select{
   min-width:0;
+  width:100%;
   font-size:14px;
+  line-height:1.2;
   padding:10px 28px 10px 10px;
-  color: var(--text);
-  background:#0f1528;
-  -webkit-text-fill-color: var(--text);
+
+  color: var(--text) !important;
+  background:#0f1528 !important;
+  -webkit-text-fill-color: var(--text) !important;
+
+  appearance:auto;
+  -webkit-appearance: menulist;
+  opacity:1;
+}
+
+#screen_consent .birthSelects select option{
+  color:#000;
+  background:#fff;
 }
 
 #screen_consent .birthSelects select option{
@@ -2501,7 +2513,7 @@ function setupBirthSelects(){
     yearEl.innerHTML += `<option value="${y}">${y}</option>`;
   }
 
-  monthEl.innerHTML = '<option value="">월</option>';
+  monthEl.innerHTML = '<option value="" selected>월</option>';
   for(let m = 1; m <= 12; m++){
   monthEl.innerHTML += `<option value="${m}">${m}</option>`;
   }
@@ -2510,7 +2522,7 @@ function setupBirthSelects(){
     const y = Number(yearEl.value);
     const m = Number(monthEl.value);
 
-    dayEl.innerHTML = '<option value="">일</option>';
+    dayEl.innerHTML = '<option value="" selected>일</option>';
 
     if(!y || !m){
       updateBirthHidden();
@@ -2520,7 +2532,7 @@ function setupBirthSelects(){
 
     const lastDay = new Date(y, m, 0).getDate();
     for(let d = 1; d <= lastDay; d++){
-    dayEl.innerHTML += `<option value="${d}">${d}</option>`;
+      dayEl.innerHTML += `<option value="${d}">${d}</option>`;
     }
 
     updateBirthHidden();
