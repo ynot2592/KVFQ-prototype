@@ -1367,7 +1367,7 @@ html, body{
 /* ===== 동의 버튼 위 안내문 ===== */
 #screen_consent #consentLockGuide{
   margin-top: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   padding-left: 2px;
   padding-right: 2px;
   font-size: 12.5px;
@@ -1722,7 +1722,7 @@ html, body{
     <!-- VFQ VAS 17문항 -->
   <div class="card hidden" id="screen_vfq">
     <h2>Visual Fatigue Questionnaire</h2>
-    <div class="vfq-subtitle">시각 피로(안정피로) 설문</div>
+    <div class="vfq-subtitle">시각 피로 (안정피로) 설문</div>
     <p style="font-size:14.5px;">
       아래 항목 각각에 대해 <b>현재(지금)</b> 상태를 기준으로 응답해주세요.<br><br>
       <b>점선 또는 실선 위를 터치</b>해 수직선을 표시하세요.<br>
@@ -2687,7 +2687,7 @@ function setupBirthSelects(){
   const lockGuide = gid('consentLockGuide');
   if(lockGuide){
     if(consentSigned){
-      lockGuide.innerHTML = '입력 정보를 <b>수정할 수 없습니다</b>. 수정을 원하시면 <b>종료 후 다시 시작</b>해 주세요.';
+      lockGuide.innerHTML = '입력 정보를 수정할 수 없습니다.<br> 수정을 원하시면 <b>종료 후 다시 시작</b>해 주세요.';
     }else{
       lockGuide.innerHTML = '<b>동의 후</b>에는 기본정보를 <b>수정할 수 없습니다</b>. 입력 내용을 다시 확인해주세요.';
     }
@@ -2830,7 +2830,7 @@ function resetAll(){
   if(gid('consentTime')) gid('consentTime').textContent = '';
   if(gid('consentNextHint')) gid('consentNextHint').textContent = '';
   if(gid('consentLockGuide')){
-    gid('consentLockGuide').innerHTML = '<b>동의 후</b>에는 기본정보를 <b>수정할 수 없습니다</b>. 입력 내용을 다시 확인해주세요.';
+    gid('consentLockGuide').innerHTML = '<b>동의 후</b>에는 기본정보를 <b>수정할 수 없습니다</b>.<br> 입력 내용을 다시 확인해주세요.';
   }
 
   // VFQ 답 초기화
