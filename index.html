@@ -2683,6 +2683,7 @@ function setupBirthSelects(){
 
     const hint = gid('consentHint');
   if(hint) hint.textContent = ok ? '' : ('미완료 : ' + msg.join(', '));
+}
 
 // 생년월일 기반 PID 생성 + (재검 코드 있으면 -K74 형태로 결합) + used_ids 중복 suffix
 function buildParticipantId(yyyymmdd, ini, dig){
@@ -2764,11 +2765,6 @@ function onConsentSign(){
 
     // ✅ 서명 완료 처리
   consentSigned = true;
-
-  const lockGuide = gid('consentLockGuide');
-  if(lockGuide){
-    lockGuide.innerHTML = '입력 정보를 <b>수정할 수 없습니다</b>. 수정을 원하시면 <b>종료 후 다시 시작</b>해 주세요.';
-  }
 
   // ✅ 기본정보 잠금
   lockConsentInputs();
