@@ -775,8 +775,8 @@
   font-weight: 500;
   color: rgba(230,235,255,.88);
   line-height: 1.3;
-  margin-top: -16px;
-  margin-bottom: 18px;
+  margin-top: -20px;
+  margin-bottom: 22px;
 }
 
 @media (max-width:430px){
@@ -1960,8 +1960,8 @@ function toKSTString(d = new Date()){
 
 function createVAS(index, canvas, scoreElem, opts = {}) {
   const ctx = canvas.getContext('2d');
-  const logicalWidth  = 480;
-  const logicalHeight = opts.compact ? 140 : 150;
+  const logicalWidth  = 520;
+  const logicalHeight = opts.compact ? 145 : 160;
   const dpr = window.devicePixelRatio || 1;
 
   canvas.width  = logicalWidth * dpr;
