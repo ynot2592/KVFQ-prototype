@@ -2682,16 +2682,7 @@ function setupBirthSelects(){
   if(!sexOk)   msg.push('성별');
 
     const hint = gid('consentHint');
-  if(hint) hint.textContent = ok ? '' : ('미완료 : ' + msg.join(', '));
-
-  const lockGuide = gid('consentLockGuide');
-  if(lockGuide){
-    if(consentSigned){
-      lockGuide.innerHTML = '입력 정보 수정을 원하시면 <b>종료 후 다시 시작</b>해 주세요.';
-    }else{
-      lockGuide.innerHTML = '<b>동의 후</b>에는 입력 정보를 <b>수정할 수 없습니다</b>.<br> 입력 내용을 다시 확인해주세요.';
-    }
-  }
+  if(hint) hint.textContent = ok ? '' : ('미완료 : ' + msg.join(', ')); 
 }
 
 // 생년월일 기반 PID 생성 + (재검 코드 있으면 -K74 형태로 결합) + used_ids 중복 suffix
@@ -2760,6 +2751,11 @@ function onConsentSign(){
   S.consentAtISO = now.toISOString();
   S.consentAtKST = toKSTString(now);
 
+  const lockGuide = gid('consentLockGuide');
+  if(lockGuide){
+    lockGuide.innerHTML = '입력 정보 수정을 원하시면 <b>종료 후 다시 시작</b>해 주세요.';
+  }
+  
   // 동의 시각 표시 (지금 HTML에 존재하는 id는 consentSignedAt_inline임) 와 다음버튼 안내
   const inline = gid('consentSignedAt_inline');
   if(inline) inline.textContent = `동의 시각: ${S.consentAtKST}`;
@@ -2829,9 +2825,7 @@ function resetAll(){
   if(gid('consentSignedAt_inline')) gid('consentSignedAt_inline').textContent = '';
   if(gid('consentTime')) gid('consentTime').textContent = '';
   if(gid('consentNextHint')) gid('consentNextHint').textContent = '';
-  if(gid('consentLockGuide')){
-    gid('consentLockGuide').innerHTML = '<b>동의 후</b>에는 기본정보를 <b>수정할 수 없습니다</b>.<br> 입력 내용을 다시 확인해주세요.';
-  }
+  if(gid('consentLockGuide')) gid('consentLockGuide').innerHTML = '';
 
   // VFQ 답 초기화
   for(let i=0;i<vfqAnswers.length;i++) vfqAnswers[i]=null;
