@@ -768,8 +768,20 @@
   margin-top: 20px;     /* 제목과 상단 여백 조정 이 줄 추가 */  
   margin-bottom: 24px;   /* 기본보다 더 넓게 */
 }
+
+#screen_vfq .vfq-subtitle{
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(230,235,255,.88);
+  line-height: 1.3;
+  margin-top: -16px;
+  margin-bottom: 18px;
+}
+
 @media (max-width:430px){
   #screen_vfq h2{ font-size:22px; }
+  #screen_vfq .vfq-subtitle{ font-size:14px; }
 }
 
 #screen_vfq p{
@@ -1677,6 +1689,7 @@ html, body{
     <!-- VFQ VAS 17문항 -->
   <div class="card hidden" id="screen_vfq">
     <h2>Visual Fatigue Questionnaire</h2>
+    <div class="vfq-subtitle">시각 피로(안정피로) 설문지</div>
     <p style="font-size:14.5px;">
       아래 항목 각각에 대해 <b>현재(지금)</b> 상태를 기준으로 응답해주세요.<br>
       <b>점선 또는 실선 위를 터치</b>해 수직선을 표시하세요.<br>
