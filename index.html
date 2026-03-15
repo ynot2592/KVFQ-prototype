@@ -2150,7 +2150,7 @@ if (scoreElem && isExample) {
 
   const title = document.createElement('div');
   title.className = 'question-title';
-  title.textContent = '예시) 아래와 같이 어느 위치에나 표시할 수 있습니다.';
+  title.textContent = '예시) 아래와 같이 원하는 위치를 선택할 수 있습니다.';
 
   const canvas = document.createElement('canvas');
   canvas.className = 'vas-canvas example';
@@ -2161,7 +2161,7 @@ if (scoreElem && isExample) {
   const note = document.createElement('p');
   note.className = 'exampleNote';
   note.textContent =
-    '점선 또는 실선 위의 원하는 위치를 터치하면 빨간 선이 표시됩니다. (굵은 선 포함)';
+    '점선 또는 실선 위 어느 위치든 터치하면 빨간 선이 표시됩니다. (굵은 선 포함)';
 
   block.appendChild(title);
   block.appendChild(canvas);
@@ -2753,7 +2753,7 @@ function onConsentSign(){
 
   const lockGuide = gid('consentLockGuide');
   if(lockGuide){
-    lockGuide.innerHTML = '입력한 내용이 잘못된 경우, <b>종료 후 다시 시작</b>해 주세요.';
+    lockGuide.innerHTML = '<b>입력한 내용이 잘못된 경우</b>, 종료 후 다시 시작해 주세요.';
   }
   
   // 동의 시각 표시 (지금 HTML에 존재하는 id는 consentSignedAt_inline임) 와 다음버튼 안내
