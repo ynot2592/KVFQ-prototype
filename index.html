@@ -1689,11 +1689,11 @@ html, body{
     <!-- VFQ VAS 17문항 -->
   <div class="card hidden" id="screen_vfq">
     <h2>Visual Fatigue Questionnaire</h2>
-    <div class="vfq-subtitle">시각 피로(안정피로) 설문지</div>
+    <div class="vfq-subtitle">시각 피로(안정피로) 설문</div>
     <p style="font-size:14.5px;">
       아래 항목 각각에 대해 <b>현재(지금)</b> 상태를 기준으로 응답해주세요.<br><br>
       <b>점선 또는 실선 위를 터치</b>해 수직선을 표시하세요.<br>
-      표시는 <b>왼쪽 끝부터 오른쪽 끝</b>까지 <b>어느 위치에나</b> 할 수 있습니다. <b>(굵은 선 포함)</b>
+      표시는 <b>왼쪽 끝</b>부터 <b>오른쪽 끝</b>까지 <b>어느 위치에나</b> 할 수 있습니다. (<b>굵은 선 포함</b>, 수정 가능)
     </p>
 
 <!-- 예시는 섹션 박스 밖에 둘 자리 -->
@@ -1985,7 +1985,7 @@ function createVAS(index, canvas, scoreElem, opts = {}) {
   if (opts.locked) canvas.style.pointerEvents = 'none';
 
 if (scoreElem && isExample) {
-  scoreElem.textContent = `예시 점수: ${current}`;
+  scoreElem.textContent = `선택 예시`;
 }
 
   function mmToX(v){
@@ -2091,12 +2091,12 @@ if (scoreElem && isExample) {
       current = v;
       vfqAnswers[index] = v;
       redraw();
-      if (scoreElem) scoreElem.textContent = `선택한 점수: ${v}`;
+      if (scoreElem) scoreElem.textContent = `선택 완료`;
     });
   } else {
     //  예시 문항: 터치/클릭 불가
     canvas.style.pointerEvents = "none";
-    if(scoreElem) scoreElem.textContent = `예시 점수: ${current}`;
+    if(scoreElem) scoreElem.textContent = `선택 완료`;
   }
 
   redraw();
@@ -2162,7 +2162,7 @@ if(mount){
 
       const score = document.createElement('p');
       score.className = 'vas-score';
-      score.textContent = "선택한 점수: 아직 선택하지 않음";
+      score.textContent = "아직 선택하지 않음";
 
       block.appendChild(title);
       block.appendChild(canvas);
