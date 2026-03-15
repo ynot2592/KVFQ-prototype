@@ -1616,7 +1616,7 @@ html, body{
   <div class="retestNoteText">
     <div class="noteLine">
       <span class="noteBullet">※</span>
-      <span><b>2회 측정 대상자</b>(신뢰도 검증 참여자 등)는 아래의 <b>재검자 코드</b>를 <b>반드시</b> 입력해주세요.</span>
+      <span><b>2회 측정 대상자</b>(신뢰도 검증 참여자 등)는 아래의 <b>재검자 코드</b>를 <b>반드시</b> 입력해 주세요.</span>
     </div>
 
     <div class="noteLine">
@@ -1634,9 +1634,9 @@ html, body{
     </span>
 
 <div class="noteExample">
-      아래 입력 칸에 <b>항상 동일하게 입력 가능한</b><br>
+      아래 입력칸에 <b>항상 동일하게 입력 가능한</b><br>
       <b>영문 1개</b>와 <b>숫자 2개</b>를 입력해 주세요.<br>
-      <b>(예: 이름의 성 이니셜 + 휴대폰번호 끝 2자리)</b>
+      <b>(예: 이름의 성 이니셜 + 휴대폰 번호 끝 2자리)</b>
     </div>
 
     <div class="retestInputs">
@@ -1724,8 +1724,8 @@ html, body{
     <h2>Visual Fatigue Questionnaire</h2>
     <div class="vfq-subtitle">시각 피로 (안정피로) 설문</div>
     <p style="font-size:14.5px;">
-      아래 항목 각각에 대해 <b>현재(지금)</b> 상태를 기준으로 응답해주세요.<br><br>
-      <b>점선 또는 실선 위를 터치</b>해 수직선을 표시하세요.<br>
+      아래 항목 각각에 대해 <b>현재(지금)</b> 느끼는 상태를 기준으로 응답해 주세요.<br><br>
+      <b>점선 또는 실선 위를 터치</b>하면 수직선이 표시됩니다.<br>
       표시는 <b>왼쪽 끝</b>부터 <b>오른쪽 끝</b>까지 <b>어느 위치에나</b> 할 수 있습니다. (<b>굵은 선 포함</b>, 수정 가능)
     </p>
 
@@ -2150,7 +2150,7 @@ if (scoreElem && isExample) {
 
   const title = document.createElement('div');
   title.className = 'question-title';
-  title.textContent = '예시) 아래와 같이 아무 위치나 선택할 수 있습니다.';
+  title.textContent = '예시) 아래와 같이 어느 위치에나 표시할 수 있습니다.';
 
   const canvas = document.createElement('canvas');
   canvas.className = 'vas-canvas example';
@@ -2161,7 +2161,7 @@ if (scoreElem && isExample) {
   const note = document.createElement('p');
   note.className = 'exampleNote';
   note.textContent =
-    '점선 또는 실선 위 어느 위치든 터치하면 빨간 선이 생깁니다. (굵은 선 포함)';
+    '점선 또는 실선 위의 원하는 위치를 터치하면 빨간 선이 표시됩니다. (굵은 선 포함)';
 
   block.appendChild(title);
   block.appendChild(canvas);
@@ -2753,7 +2753,7 @@ function onConsentSign(){
 
   const lockGuide = gid('consentLockGuide');
   if(lockGuide){
-    lockGuide.innerHTML = '입력 정보를 잘못 기입하신 경우, <b>종료 후 다시 시작</b>해 주세요.';
+    lockGuide.innerHTML = '입력한 내용이 잘못된 경우, <b>종료 후 다시 시작</b>해 주세요.';
   }
   
   // 동의 시각 표시 (지금 HTML에 존재하는 id는 consentSignedAt_inline임) 와 다음버튼 안내
