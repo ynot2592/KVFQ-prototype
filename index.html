@@ -2320,6 +2320,18 @@ if(mount){
     const tt = gid('thanks_time');
     if(tt) tt.textContent = toKSTString(now2);
 
+    // 현재 설문형 흐름에서도 PID 중복 방지가 작동하도록 used_ids에 저장
+    try{
+      const used = JSON.parse(localStorage.getItem('used_ids') || '[]');
+      const pid = S.pid || '';
+      if(pid && !used.includes(pid)){
+        used.push(pid);
+        localStorage.setItem('used_ids', JSON.stringify(used));
+      }
+   }catch(e){
+     console.warn('used_ids 저장 실패:', e);
+   }
+
     // ✅ 성공했을 때 다음 페이지
     go('screen_thankyou');
   };
