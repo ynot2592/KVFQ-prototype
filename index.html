@@ -1423,6 +1423,11 @@ html, body{
   min-width: 0;
 }
 
+.thanks-note .txt b {
+  color: #ffffff;
+  font-weight: 700;
+}
+
 </style>
 </head>
 <body>
@@ -1997,6 +2002,7 @@ function toKSTString(d = new Date()){
   // '연구 설명문 전체 보기' 확인 완료 여부
   let fullDocConfirmed = false;
   let consentSigned = false;
+  let isSubmitting = false;
   const NPC_SPEED_MAX = 4.0; // NPC 이동 속도 경고 임계값(cm/s)  
   const screens=['screen_consent','screen_home','screen_camtest','screen_vfq','screen_thankyou','screen_calib','screen_npc','screen_pvt','screen_export']
   function go(id){
@@ -2268,12 +2274,18 @@ if(mount){
     const resultDiv = document.getElementById('vfqResult');
 
     if(btn && resultDiv){
-      btn.onclick = async ()=>{         
+      btn.onclick = async ()=>{
+         if(isSubmitting){
+           return;
+         }
+         isSubmitting = true;
+         
          const missing = [];
          vfqAnswers.forEach((v,i)=>{ if(v===null) missing.push(i+1); });
     
          if(missing.length){
            resultDiv.textContent = "아직 응답하지 않은 문항이 있습니다: " + missing.join(", ") + "번";
+           isSubmitting = false;
            return;
     }
 
@@ -2287,6 +2299,7 @@ calcVFQ();
 // ✅ 제출 직전 필수 상태 재확인
 if(!consentSigned || !S.pid || !S.birth || !S.sex || !S.consentAtISO || !S.consentAtKST){
   alert('동의 또는 기본정보 상태가 올바르지 않습니다. 처음부터 다시 진행해 주세요.');
+  isSubmitting = false;
   btn.disabled = false;
   btn.textContent = '설문 완료';
   resultDiv.textContent = '';
@@ -2316,6 +2329,7 @@ try{
 
   if(!ok){
     alert('구글시트 전송에 실패했습니다. 인터넷 상태를 확인하고 다시 시도해주세요.');
+    isSubmitting = false;
     btn.disabled = false;
     btn.textContent = '설문 완료';
     resultDiv.textContent = '';
@@ -2335,6 +2349,7 @@ try{
 }catch(err){
   console.error('submit/sendToSheet 오류:', err);
   alert('제출 중 오류가 발생했습니다. 인터넷 상태를 확인한 뒤 다시 시도해주세요.');
+  isSubmitting = false;
   btn.disabled = false;
   btn.textContent = '설문 완료';
   resultDiv.textContent = '';
