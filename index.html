@@ -2945,6 +2945,9 @@ function resetAll(){
     nextBtn.disabled = true;
   }
 
+  const backBtn = gid('btn_vfq_back');
+  if(backBtn) backBtn.disabled = false;
+
   // VFQ 답 초기화
   for(let i=0;i<vfqAnswers.length;i++) vfqAnswers[i]=null;
   if(gid('vfqResult')) gid('vfqResult').textContent = '';
