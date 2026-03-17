@@ -2297,6 +2297,7 @@ if(mount){
       timestamp_kst: toKSTString(now2),  // KST 문자열
       birth: S.birth,
       sex: S.sex,
+      retest_code: S.retest2 || '',
       vfq_total: S.vfqSum,
       
       // q1~q17을 헤더에 맞춰 보내기 (중요!)
@@ -2318,19 +2319,7 @@ if(mount){
     if(tp) tp.textContent = S.pid || '-';
 
     const tt = gid('thanks_time');
-    if(tt) tt.textContent = toKSTString(now2);
-
-    // 현재 설문형 흐름에서도 PID 중복 방지가 작동하도록 used_ids에 저장
-    try{
-      const used = JSON.parse(localStorage.getItem('used_ids') || '[]');
-      const pid = S.pid || '';
-      if(pid && !used.includes(pid)){
-        used.push(pid);
-        localStorage.setItem('used_ids', JSON.stringify(used));
-      }
-   }catch(e){
-     console.warn('used_ids 저장 실패:', e);
-   }
+    if(tt) tt.textContent = toKSTString(now2);  
 
     // ✅ 성공했을 때 다음 페이지
     go('screen_thankyou');
@@ -2757,25 +2746,17 @@ function setupBirthSelects(){
 }
 
 // 생년월일 기반 PID 생성 + (재검 코드 있으면 -K74 형태로 결합) + used_ids 중복 suffix
-function buildParticipantId(yyyymmdd, ini, dig){
-  const used = JSON.parse(localStorage.getItem('used_ids')||'[]');
+function buildParticipantId(yyyymmdd, ini, dig){  
   const baseDate = yyyymmdd || 'NA';
 
   // 재검자 코드가 완전하게 들어온 경우에만 붙임
   const hasRetest = (typeof ini === 'string' && ini.length === 1) && (/^\d{2}$/.test(String(dig||'')));
-
-  let base = baseDate;
+  
   if(hasRetest){
-    base = `${base}-${ini}${dig}`;   // 예: 19900101-K74
+    return `${baseDate}-${ini}${dig}`;   // 예: 19900101-K74
   }
-
-  // 혹시 같은 PID가 이미 있으면 -2, -3 붙여서 유일하게
-  let pid = base, i = 2;
-  while(used.includes(pid)){
-    pid = `${base}-${i}`;
-    i++;
-  }
-  return pid;
+  
+  return baseDate;
 }
 
 function onConsentSign(){
