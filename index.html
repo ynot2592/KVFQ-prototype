@@ -65,8 +65,7 @@
 
   /* VFQ VAS 전용 레이아웃 */
   .question-block{
-    margin: 18px autopx 12px;   /* 좌우만 확장 (원치 않으면 -6px -> 0) */ /* 삭제: margin: 18px -6px 12px; */
-    max-width: 620px;
+    margin: 18px 0px 12px;   /* 좌우만 확장 (원치 않으면 -6px -> 0) */ /* 삭제: margin: 18px -6px 12px; */
     padding: 8px 12px 0px;  /* 좌우 padding 약간 증가 */
     border-radius: 10px;
     background:#10172a;
@@ -77,8 +76,7 @@
 .question-block.example{
   background: rgba(239,68,68,.10);
   border: 1px solid rgba(239,68,68,.35);
-  margin: 10px auto 10px;     /* 기존 question-block보다 작게 */
-  max-width: 620px;
+  margin: 10px -6px 10px;     /* 기존 question-block보다 작게 */
   padding: 8px 12px 10px;     /* 내부도 살짝 압축 */
 }
 
@@ -124,14 +122,13 @@
   }
   .vas-canvas{
     width: 100%;
-    max-width: 560px;
     height: auto;         /* 세로 자동 */
     border-radius: 8px;
     margin-top: 8px;
     border:1px solid rgba(148,163,184,.6);
     background:#020617;
     display:block;
-    margin-left: auto;      /* 왼쪽 정렬 느낌 유지 */
+    margin-left: 0;      /* 왼쪽 정렬 느낌 유지 */
     margin-right: auto;
   }
 
@@ -2801,7 +2798,7 @@ function onConsentSign(){
 
   // 상태 저장
   S.pid = pid;
-  S.birth = yyyymmdd;
+  S.birth = birthVal;
   S.sex = sexVal;
   S.retest2 = retestOK ? `${ini}${dig}` : '';
 
