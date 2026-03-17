@@ -1840,7 +1840,7 @@ async function sendToSheet(payload){
     return false;
   }
 }
-  const S={ pid:"", birth:"", sex:"", retest2:"", vfq:{}, vfqSum:0, consentAtISO:"", consentAtKST:""} }
+  const S={ pid:"", birth:"", sex:"", retest2:"", vfq:{}, vfqSum:0, consentAtISO:"", consentAtKST:""}
 
 function toKSTString(d = new Date()){
   const kst = new Date(d.getTime() + 9*60*60*1000);
