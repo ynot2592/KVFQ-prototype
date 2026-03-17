@@ -2290,8 +2290,10 @@ if(mount){
     }
 
     btn.disabled = true;
-btn.textContent = '제출 중...';
-resultDiv.textContent = '결과를 제출 중입니다. 잠시만 기다려주세요.';
+    btn.textContent = '제출 중...';
+    resultDiv.textContent = '결과를 제출 중입니다. 잠시만 기다려주세요.';
+    const backBtn = gid('btn_vfq_back');
+    if(backBtn) backBtn.disabled = true;
 
 // 총합 계산
 calcVFQ();
@@ -2331,9 +2333,11 @@ try{
     alert('결과 전송에 실패했습니다.\n인터넷 상태를 확인하고 다시 시도해 주세요.');
     isSubmitting = false;
     btn.disabled = false;
+    const backBtn = gid('btn_vfq_back');
+    if(backBtn) backBtn.disabled = false;
     btn.textContent = '설문 완료';
     resultDiv.textContent = '';
-    return;
+    return;    
   }
 
   // Thank you 화면에 표시 값 채우기
@@ -2351,6 +2355,8 @@ try{
   alert('제출 중 오류가 발생했습니다. 인터넷 상태를 확인한 뒤 다시 시도해주세요.');
   isSubmitting = false;
   btn.disabled = false;
+  const backBtn = gid('btn_vfq_back');
+  if(backBtn) backBtn.disabled = false;
   btn.textContent = '설문 완료';
   resultDiv.textContent = '';
   return;
@@ -2891,12 +2897,26 @@ function resetAll(){
   // 상태 초기화
   consentSigned = false;
   fullDocConfirmed = false;
+  isSubmitting = false;
+
+  S.pid = '';
+  S.birth = '';
+  S.sex = '';
+  S.retest2 = '';
+  S.consentAtISO = '';
+  S.consentAtKST = '';
+  S.vfqSum = 0;
 
   // 기본정보 잠금 해제
   unlockConsentInputs();
 
   // 체크박스/입력 초기화
-  ['c_main','c_esign','c_camera'].forEach(id=>{ const el=gid(id); if(el) el.checked=false; });
+  ['c_main','c_esign','c_camera'].forEach(id=>{
+  const el = gid(id);
+  if(!el) return;
+  el.checked = false;
+  el.disabled = false;
+});
   if(gid('birth')) gid('birth').value = '';
   if(gid('sex')) gid('sex').value = '';
   if(gid('birth_year')) gid('birth_year').value = '';
@@ -2911,6 +2931,19 @@ function resetAll(){
   if(gid('consentTime')) gid('consentTime').textContent = '';
   if(gid('consentNextHint')) gid('consentNextHint').textContent = '';
   if(gid('consentLockGuide')) gid('consentLockGuide').innerHTML = '';
+
+  const startBtn = gid('btn_consent_start');
+  const nextBtn  = gid('btn_consent_next');
+
+  if(startBtn){
+    startBtn.disabled = true;
+    startBtn.classList.add('primary');
+    startBtn.textContent = '동의하고 시작하기';
+  }
+
+  if(nextBtn){
+    nextBtn.disabled = true;
+  }
 
   // VFQ 답 초기화
   for(let i=0;i<vfqAnswers.length;i++) vfqAnswers[i]=null;
