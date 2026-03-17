@@ -2853,6 +2853,12 @@ function onConsentSign(){
   // ✅ 기본정보 잠금
   lockConsentInputs();
 
+  // ✅ 동의 체크박스도 잠금
+  ['c_main','c_esign','c_camera'].forEach(id=>{
+    const el = gid(id);
+    if(el) el.disabled = true;
+  });
+
   // ✅ 버튼 색상/활성 스텝 처리
   const startBtn = gid('btn_consent_start');
   const nextBtn  = gid('btn_consent_next');
