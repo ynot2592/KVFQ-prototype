@@ -2278,51 +2278,68 @@ if(mount){
     }
 
     btn.disabled = true;
-    btn.textContent = '제출 중...';
-    resultDiv.textContent = '결과를 제출 중입니다. 잠시만 기다려주세요.';
+btn.textContent = '제출 중...';
+resultDiv.textContent = '결과를 제출 중입니다. 잠시만 기다려주세요.';
 
-    // 총합 계산
-    calcVFQ();
+// 총합 계산
+calcVFQ();
 
-    resultDiv.textContent = '잠시만 기다려주세요.';
+// ✅ 제출 직전 필수 상태 재확인
+if(!consentSigned || !S.pid || !S.birth || !S.sex || !S.consentAtISO || !S.consentAtKST){
+  alert('동의 또는 기본정보 상태가 올바르지 않습니다. 처음부터 다시 진행해 주세요.');
+  btn.disabled = false;
+  btn.textContent = '설문 완료';
+  resultDiv.textContent = '';
+  return;
+}
 
-    //  구글시트로 전송
-    const now2 = new Date();
+const now2 = new Date();
 
-    const ok = await sendToSheet({
-      pid: S.pid,
-      consent_at: S.consentAtISO,        // UTC
-      consent_at_kst: S.consentAtKST,    // KST 문자열
-      timestamp: now2.toISOString(),     // UTC
-      timestamp_kst: toKSTString(now2),  // KST 문자열
-      birth: S.birth,
-      sex: S.sex,
-      retest_code: S.retest2 || '',
-      vfq_total: S.vfqSum,
-      
-      // q1~q17을 헤더에 맞춰 보내기 (중요!)
-      q1: vfqAnswers[0],  q2: vfqAnswers[1],  q3: vfqAnswers[2],  q4: vfqAnswers[3],  q5: vfqAnswers[4],
-      q6: vfqAnswers[5],  q7: vfqAnswers[6],  q8: vfqAnswers[7],  q9: vfqAnswers[8],  q10: vfqAnswers[9],
-      q11: vfqAnswers[10], q12: vfqAnswers[11], q13: vfqAnswers[12], q14: vfqAnswers[13], q15: vfqAnswers[14],
-      q16: vfqAnswers[15], q17: vfqAnswers[16],
-    });
+try{
+  const ok = await sendToSheet({
+    pid: S.pid,
+    consent_at: S.consentAtISO,        // UTC
+    consent_at_kst: S.consentAtKST,    // KST 문자열
+    timestamp: now2.toISOString(),     // UTC
+    timestamp_kst: toKSTString(now2),  // KST 문자열
+    birth: S.birth,
+    sex: S.sex,
+    retest_code: S.retest2 || '',
+    vfq_total: S.vfqSum,
 
-    if(!ok){
-      alert('구글시트 전송에 실패했습니다. 인터넷 상태를 확인하고 다시 시도해주세요.');
-      btn.disabled = false;
-      btn.textContent = '설문 완료';
-      return;
-    }
+    // q1~q17을 헤더에 맞춰 보내기 (중요!)
+    q1: vfqAnswers[0],  q2: vfqAnswers[1],  q3: vfqAnswers[2],  q4: vfqAnswers[3],  q5: vfqAnswers[4],
+    q6: vfqAnswers[5],  q7: vfqAnswers[6],  q8: vfqAnswers[7],  q9: vfqAnswers[8],  q10: vfqAnswers[9],
+    q11: vfqAnswers[10], q12: vfqAnswers[11], q13: vfqAnswers[12], q14: vfqAnswers[13], q15: vfqAnswers[14],
+    q16: vfqAnswers[15], q17: vfqAnswers[16],
+  });
 
-    // Thank you 화면에 표시 값 채우기
-    const tp = gid('thanks_pid'); 
-    if(tp) tp.textContent = S.pid || '-';
+  if(!ok){
+    alert('구글시트 전송에 실패했습니다. 인터넷 상태를 확인하고 다시 시도해주세요.');
+    btn.disabled = false;
+    btn.textContent = '설문 완료';
+    resultDiv.textContent = '';
+    return;
+  }
 
-    const tt = gid('thanks_time');
-    if(tt) tt.textContent = toKSTString(now2);  
+  // Thank you 화면에 표시 값 채우기
+  const tp = gid('thanks_pid'); 
+  if(tp) tp.textContent = S.pid || '-';
 
-    // ✅ 성공했을 때 다음 페이지
-    go('screen_thankyou');
+  const tt = gid('thanks_time');
+  if(tt) tt.textContent = toKSTString(now2);
+
+  // ✅ 성공했을 때 다음 페이지
+  go('screen_thankyou');
+
+}catch(err){
+  console.error('submit/sendToSheet 오류:', err);
+  alert('제출 중 오류가 발생했습니다. 인터넷 상태를 확인한 뒤 다시 시도해주세요.');
+  btn.disabled = false;
+  btn.textContent = '설문 완료';
+  resultDiv.textContent = '';
+  return;
+}
   };
  }
 }
