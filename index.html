@@ -65,23 +65,12 @@
     background:#10172a;
     border:1px solid rgba(255,255,255,.08);
   }
-  
-.question-block.example{
-  background: rgba(239,68,68,.10);
-  border: 1px solid rgba(239,68,68,.35);
-  margin: 10px -6px 10px;     
-  padding: 8px 12px 10px; 
-}
 
 .question-block.example .question-title{
   font-weight: 800;
   color: #ffe4e6;
   font-size: 0.9rem;
   font-weight: 700;
-}
-
-.vas-canvas.example{
-  border-color: rgba(239,68,68,.45);
 }
 
 .exampleNote{
@@ -95,8 +84,7 @@
   font-weight: 800;
 }
 
-.vas-canvas.example{
-  
+.vas-canvas.example{  
   border-color: rgba(249,115,22,.55);
   background: rgba(2,6,23,.9);
 }
@@ -817,6 +805,8 @@
 }
 
 .question-block.example{
+  background: rgba(239,68,68,.10);
+  border: 1px solid rgba(239,68,68,.35);
   padding: 8px 12px 0px;
   margin: 8px 0 8px;
   margin-left: 0;
@@ -949,18 +939,6 @@ html, body{
   margin-bottom: 8px;
 
   line-height: 1.35;
-}
-
-#screen_consent #retest_section .badgeOptional{
-  display:inline-flex;
-  align-items:center;
-  font-size: 11px;
-  font-weight: 800;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(34,211,238,.10);
-  border: 1px solid rgba(34,211,238,.28);
-  color: #e6fbff;
 }
 
 #screen_consent #retest_section .retestNoteText{
@@ -2107,11 +2085,8 @@ try{
 
       if(d.open) setDone();
       d.addEventListener('toggle', ()=>{ if(d.open) setDone(); });
-    })();
-  
-      const f = gid('home_pid_field');
-      if(f) f.classList.add('hidden');
-        
+    })();  
+              
     setupVFQ();
     go('screen_consent');
   }
@@ -2412,8 +2387,7 @@ function resetAll(){
   if(gid('pid_preview')) gid('pid_preview').value = '(동의 후 자동 생성됨)';  
 
  
-  if(gid('consentSignedAt_inline')) gid('consentSignedAt_inline').textContent = '';
-  if(gid('consentTime')) gid('consentTime').textContent = '';
+  if(gid('consentSignedAt_inline')) gid('consentSignedAt_inline').textContent = '';  
   if(gid('consentNextHint')) gid('consentNextHint').textContent = '';
   if(gid('consentLockGuide')) gid('consentLockGuide').innerHTML = '';
 
