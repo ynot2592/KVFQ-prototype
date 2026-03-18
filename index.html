@@ -12,22 +12,20 @@
   .wrap{
   max-width: 980px;
   margin: 0 auto;
-  padding: clamp(12px, 3vw, 20px); /* 기기별 자연스러운 패딩 */
-}
+  padding: clamp(12px, 3vw, 20px); }
   .card{
   background:var(--card);
   border:1px solid rgba(255,255,255,.08);
   border-radius:16px;
-  padding:12px 12px 16px;   /*  아래만 16px로 여유 */
-  margin-left: 0;             /* 삭제: margin-left:-4px; margin-right:-4px; */
+  padding:12px 12px 16px;   
+  margin-left: 0;             
   margin-right: 0;
   box-shadow:0 8px 30px rgba(0,0,0,.25);
 }
 
-/* 모바일에서 추가 보정 */
 @media (max-width:430px){
   .card{
-    padding:10px 10px 16px; /* ✅ 모바일도 하단 여유 */
+    padding:10px 10px 16px; 
     margin-left: 0;
     margin-right: 0;
   }
@@ -59,22 +57,20 @@
   .vfq-item{padding:10px;border-radius:10px;background:#10172a;border:1px solid rgba(255,255,255,.08)}
   .vfq-item h4{margin:0 0 6px}
   .btn.circle{border-radius:9999px;height:64px;width:64px;display:flex;align-items:center;justify-content:center}
-
-  /* VFQ VAS 전용 레이아웃 */
+  
   .question-block{
-    margin: 18px 0px 12px;   /* 좌우만 확장 (원치 않으면 -6px -> 0) */ /* 삭제: margin: 18px -6px 12px; */
-    padding: 8px 12px 0px;  /* 좌우 padding 약간 증가 */
+    margin: 18px 0px 12px;  
+    padding: 8px 12px 0px;  
     border-radius: 10px;
     background:#10172a;
     border:1px solid rgba(255,255,255,.08);
   }
-
-  /* ===== 예시 블록(Example) 전용 ===== */
+  
 .question-block.example{
   background: rgba(239,68,68,.10);
   border: 1px solid rgba(239,68,68,.35);
-  margin: 10px -6px 10px;     /* 기존 question-block보다 작게 */
-  padding: 8px 12px 10px;     /* 내부도 살짝 압축 */
+  margin: 10px -6px 10px;     
+  padding: 8px 12px 10px; 
 }
 
 .question-block.example .question-title{
@@ -99,9 +95,8 @@
   font-weight: 800;
 }
 
-/* 예시용 캔버스(마커 높이 줄이기) */
 .vas-canvas.example{
-  /* createVAS에서 높이를 줄이므로 여기선 여백/테두리만 가볍게 */
+  
   border-color: rgba(249,115,22,.55);
   background: rgba(2,6,23,.9);
 }
@@ -113,47 +108,43 @@
   }
   .vas-score{
     font-size: 0.8rem;
-    margin: 4px 0 0 0;    /* 위 4px, 아래 0 */
+    margin: 4px 0 0 0;    
     text-align: right;
     color: var(--muted);
   }
   .vas-canvas{
     width: 100%;
-    height: auto;         /* 세로 자동 */
+    height: auto;         
     border-radius: 8px;
     margin-top: 8px;
     border:1px solid rgba(148,163,184,.6);
     background:#020617;
     display:block;
-    margin-left: 0;      /* 왼쪽 정렬 느낌 유지 */
+    margin-left: 0;      
     margin-right: auto;
   }
 
-/* VFQ 카드만 양쪽 여백을 조금 줄여서 더 넓게 사용 */ /* 삭제: margin-left:-4px; margin-right:-4px; */
 #screen_vfq {
   margin-left: 0;
   margin-right: 0;
 }
 
-/* VFQ 카드 내부 padding 줄여서 문항/캔버스 폭 확보 (핵심) */
 #screen_vfq.card{
    padding-left: 10px;
    padding-right: 10px;
 }
 
-/* 동의 화면도 VFQ와 동일한 좌우 padding */
 #screen_consent.card{
   padding-left: 10px;
   padding-right: 10px;
 }
-
-  /* === iOS Safari 레이아웃/글자 깨짐 보정 === */
+  
   html { -webkit-text-size-adjust: 100%; }
-  /* 한국어 줄바꿈 안정화 */
+  
   p, .field label { word-break: keep-all; overflow-wrap: anywhere; }
-  /* 입력요소 확대 방지 (iOS는 16px 미만이면 자동 줌) */
+  
   input, select, textarea { font-size: 16px; }
-  /* 작은 화면에서는 2열 → 1열로 변경해 텍스트 폭 확보 */
+  
   @media (max-width: 430px) {
     .wrap { padding: 14px; }
     h1 { font-size: 22px; }
@@ -163,18 +154,18 @@
     .field { align-items: flex-start; }
     .field label { display: block; }
   }
-  /* 노치(Safe Area) 대응 */
+  
   body { padding-top: env(safe-area-inset-top); }
 
-  /* 체크 동의 레이아웃 — iOS에서도 자연 줄바꿈 */
+  
   .field.checkbox{display:grid;grid-template-columns:auto 1fr;align-items:start;column-gap:8px}
   .field.checkbox input[type="checkbox"]{margin-top:6px}
   .field.checkbox label{display:block;white-space:normal;word-break:keep-all;overflow-wrap:anywhere;line-height: inherit;}
 
-  /* ===== Consent v2 (요약+상세+체크박스) ===== */
+  
 #screen_consent h1{
   font-size:24px;
-  margin-bottom:8px;   /* 기본 여백 줄이기 */
+  margin-bottom:8px;   
 }
 
 #screen_consent p  { font-size: 15.5px; line-height: inherit; }
@@ -187,10 +178,10 @@
   display:flex; flex-wrap:wrap; gap:8px;
 }
 
-/* 메타정보(연구과제명/기간/소요시간) 한 박스로 합치기 */
+
 .metaBox{
   width:100%;
-  padding:6px 12px 4px;   /* 상·하 더 압축 */
+  padding:6px 12px 4px;   
   border-radius:14px;
   background:#12203a;
   border:1px solid rgba(255,255,255,.10);
@@ -210,13 +201,13 @@
   border-top:0;
   padding-top:0;
 }
-/* metaBox 마지막 줄(소요시간) 아래 여백만 줄이기 */
+
 .metaBox > div:last-child{
-  padding-bottom: 0;   /* 기존 6px → 0 */
+  padding-bottom: 0;   
 }
 .metaBox b{
   display:inline-block;
-  min-width:78px;          /* 라벨 정렬(원하면 70~90 조절) */
+  min-width:78px;          
   color:#e6ebff;
 }
 
@@ -243,7 +234,7 @@
 }
 
 .consentSummary{
-  margin-top: 12px;   /* 기존 0 → 14px (12~16 사이에서 취향 조절) */
+  margin-top: 12px;   
   padding:12px;
   border-radius:14px;
   background:#0f172a;
@@ -257,29 +248,29 @@
   align-items:center;
   gap:8px;
 }
-/* consentSummary 안 첫 문단(본 연구는~) 여백 제어 */
+
 .consentSummary p{
-  margin: 0 0 18px;   /* 아래 간격 추가 */
+  margin: 0 0 18px;   
 }
 .consentSummary ul{
-  margin: 0 0 0 12px;   /* 18px → 12px : 들여쓰기 줄이기 */
-  padding-left: 0;        /* 기본 padding 제거 */
+  margin: 0 0 0 12px;   
+  padding-left: 0;        
 }
 .consentSummary li{
-  margin: 5px 0;          /* 6px → 5px */
+  margin: 5px 0;          
   color: var(--muted);
   font-size: 15px;
 }
 .consentSummary .excludeItem{
-  margin-top: 14px;     /* 위 리스트와 거리 */
-  padding-top: 14px;    /* 점선과 텍스트 거리 */
+  margin-top: 14px;    
+  padding-top: 14px;   
   border-top: 1px dashed rgba(255,255,255,.15);
   color: var(--muted);
   font-size: 14px;
 }
 .consentWarn{
-  margin-top: 14px;     /* 제외 대상과 더 분리 */
-  margin-bottom: 2px;  /* 아래 회색 박스와 거리 */
+  margin-top: 14px;     
+  margin-bottom: 2px;  
   padding:5px 12px 5px;
   border-radius:12px;
   background:rgba(239,68,68,.08);
@@ -288,14 +279,14 @@
   font-size:14px;
 }
 .consentSubTitle{
-  margin: 0 0 14px;   /* 6px → 14px */
-  line-height: 1.25;   /* 제목 줄 높이 타이트 */
-  font-size: 16.8px;      /* 본문보다 살짝 큼 */
+  margin: 0 0 14px;   
+  line-height: 1.25;  
+  font-size: 16.8px;     
   font-weight: 700;
   color: #e6ebff;
 }
 .detailsBox{
-  margin-top: 4px;  /* 10px → 6px → 4px */
+  margin-top: 4px;  
   border-radius:14px;
   overflow:hidden;
   border:1px solid rgba(255,255,255,.10);
@@ -308,38 +299,38 @@
   justify-content:space-between;
   gap:10px;
 
-  /* ✅ 추가 */
-  flex-wrap: nowrap;        /* 줄바꿈 방지 */
-  min-width: 0;             /* 말줄임 적용을 위해 필요 */
+  
+  flex-wrap: nowrap;        
+  min-width: 0;             
 
   cursor:pointer;
-  padding:12px 12px 12px 12px;   /* 오른쪽 여백 줄이기 */
+  padding:12px 12px 12px 12px;   
   font-weight:700;
   color:#e6ebff;
-  font-size: 16.8px;      /* 15.5 → 16.8 (원하면 16~17.5 사이 조절) */
-  line-height: 1.25;      /* 글자 커져도 줄간격 과하지 않게 */
+  font-size: 16.8px;      
+  line-height: 1.25;      
   list-style:none;
 }
-/* details 접힘/펼침 상태 아이콘(▼/▲) 표시 */
-/* (교체) 기존 오른쪽 고정 화살표 제거 */
+
+
 .detailsBox summary::after{
   content:none;
 }
 
-/* 제목 옆에 화살표 표시 */
+
 .detailsBox summary .sumTitle{
   display:inline-flex;
   align-items:center;
   gap:6px;
 
-/* ✅ 추가: 제목은 남는 공간만 쓰고 말줄임 */
+
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* ✅ 배지는 오른쪽 끝에 고정 */
+
 .detailsBox summary #badge_full{
   margin-left: auto;
   flex: 0 0 auto;
@@ -360,22 +351,22 @@
   border-top:1px solid rgba(255,255,255,.08);
   color: var(--muted);
   font-size: 14.8px;
-  line-height: 1.35;      /* 1.65 -> 1.35 */
-  word-break: normal;         /* keep-all 해제 */
-  overflow-wrap: break-word;  /* 긴 문자열만 필요 시 끊기 (호환 좋음) */
-  hyphens: auto;              /* 영문 단어 줄바꿈 자연스럽게 (지원 브라우저에서만) */
+  line-height: 1.35;      
+  word-break: normal;         
+  overflow-wrap: break-word;  
+  hyphens: auto;              
 }
 .detailsInner h3{
-  margin: 10px 0 4px;   /* 기존 10px 0 6px → 아래 간격 4px로 축소 */
+  margin: 10px 0 4px;   
   font-size:15.5px;
   color:#e6ebff;
   margin-top: 30px;
   margin-bottom: 6px;
 }
 .detailsInner h3:first-of-type{
-  margin-top: 12px;   /* 또는 10~14px 취향 */
+  margin-top: 12px;   
 }
-/* h3 바로 다음 본문 시작 간격 */
+
 .detailsInner h3 + p,
 .detailsInner h3 + ul,
 .detailsInner h3 + ol{
@@ -383,18 +374,18 @@
 }
 .detailsInner ul,
 .detailsInner ol{
-  margin: 4px 0 0 0;    /* 6 -> 4 */
-  padding-left: 18px;     /* 기본 들여쓰기만 남김 (원하면 12~18 조절) */
+  margin: 4px 0 0 0;    
+  padding-left: 18px;     
 }
 
 .detailsInner li{
-  margin: 4px 0;        /* 5 -> 3 */
-  line-height: 1.4;     /* 1.5 -> 1.4 */
+  margin: 4px 0;        
+  line-height: 1.4;     
 }
-/* 본문 문단 */
+
 .detailsInner p{
-  text-align: left;           /* justify 금지 */
-  margin: 0 0 10px;        /* 6px -> 4px (문단 간격도 같이 살짝 압축) */
+  text-align: left;           
+  margin: 0 0 10px;        
   word-break: normal;
   overflow-wrap: break-word;
   line-height: inherit;
@@ -405,13 +396,12 @@
   margin-bottom: 14px;
 }
 
-/* ===== 연구 설명문: 2번 항목 하단 주석 문구만 축소 ===== */
+
 #details_full .detailsInner p.small{
-  font-size: 12.8px;      /* 기존 small(13.5px) → 조금만 축소 */
-  line-height: 1.25;      /* 줄간격도 약간 타이트 */
+  font-size: 12.8px;      
+  line-height: 1.25;      
 }
 
-/* 동의서 섹션 박스(옅은 박스) */
 .sectionBox{
   margin-top: 12px;
   border-radius:14px;
@@ -420,7 +410,6 @@
   background:#0f1528;
 }
 
-/* 제목줄: 선 없애고, 좌측 제목 + 우측 배지 */
 .sectionHead{
   display:flex;
   align-items:center;
@@ -433,20 +422,18 @@
   font-size:16.8px;
   line-height:1.25;
 
-  border-bottom: 0;           /* 여기서 옅은 직선 제거 */
+  border-bottom: 0;           
 }
 
-/* 본문 영역 */
 .sectionBody{
   padding:12px;
-  border-top: 0;              /* 안전차원: 혹시 있으면 제거 */
+  border-top: 0;              
 }
 .sectionBody .detailsInner{
-  padding:0;                 /* 기존 detailsInner 패딩과 중복 방지 */
+  padding:0;                 
   border-top:0;
 }
 
-/* 상태 배지 공통 */
 .badgeTag{
   display:inline-flex;
   align-items:center;
@@ -457,28 +444,24 @@
   white-space:nowrap;
 }
 
-/* 요약본 */
 .badgeTag.summary{
   color:#dbe6ff;
   background: rgba(148,163,184,.14);
   border:1px solid rgba(148,163,184,.30);
 }
 
-/* 필수 확인 */
 .badgeTag.required{
   color:#ffe4e6;
   background: rgba(244, 63, 94, .16);
   border: 1px solid rgba(244, 63, 94, .45);
 }
 
-/* 확인 완료 */
 .badgeTag.done{
   color:#dcfce7;
   background: rgba(16,185,129,.12);
   border:1px solid rgba(16,185,129,.35);
 }
 
-/* 우측 '필수 확인' 배지 */
 .requiredBadge{
   display:inline-flex;
   align-items:center;
@@ -506,11 +489,10 @@
   align-items:flex-start;
   padding:10px 10px;
   border-radius:12px;
-  background: rgba(15, 23, 42, 0.55);              /* 더 어두운 바탕 */
-  border: 1px solid rgba(34, 211, 238, 0.14);      /* 테두리도 살짝 다운 */
+  background: rgba(15, 23, 42, 0.55);              
+  border: 1px solid rgba(34, 211, 238, 0.14);      
 }
-
-  /* 체크박스 폭 조정 규칙은 밖에 단독으로 */
+  
   #screen_consent #consent_checks_v3 .checkRow{
   grid-template-columns: 18px 1fr; /* 22px → 18px */
   gap: 8px;                        /* 10px → 8px */
@@ -521,18 +503,18 @@
   margin-top:2px;
 }
 .checkRow label{
-  line-height: 1.45;     /* 가독성 보완 */
+  line-height: 1.45;     
   color: #d6f4ff;
   word-break: keep-all;
   overflow-wrap:anywhere;
-  display:block; /* 이미 아래에 따로 있으니 여기서 합쳐도 됨 */
+  display:block; 
 }
 
 .finalAgree{
-  background: rgba(15, 23, 42, 0.72);              /* 첫번째만 아주 살짝 더 진하게 */
+  background: rgba(15, 23, 42, 0.72);              
   border: 1px solid rgba(34, 211, 238, 0.22);
 }
-/* 첫번째만 label 자체에 폰트 주지 않기 (ckTitle/ckBody 규칙을 따르게) */
+
 #screen_consent #consent_checks_v3 .finalAgree label{
   font-size: inherit;
   font-weight: inherit;
@@ -543,7 +525,6 @@
   margin-top:10px;
 }
 
-/* ===== 1페이지(동의) 생년월일/성별 입력칸: 라벨 가운데 정렬 느낌 ===== */
 #screen_consent .consentFormGrid .field{
   display: grid;
   grid-template-columns: 100px 1fr;
@@ -551,25 +532,11 @@
   gap: 10px;
 }
 
-/* ✅ retest_section은 기존 2열 field 그리드 규칙에서 제외 */
 #screen_consent .consentFormGrid #retest_section{
-  display: block;      /* grid 해제 */
-  padding: 8px 10px;   /* 다른 field와 톤 맞춤 */
+  display: block;      
+  padding: 8px 10px;   
 }
 
-/* ✅ 안내문 줄바꿈/폭 안정화 */
-#retest_section .retestTopNote{
-  display:flex;
-  gap:8px;
-  align-items:flex-start;
-  flex-wrap: nowrap;   /* 배너/텍스트가 이상하게 꺾이는 것 방지 */
-}
-#retest_section .retestTopNote > div{
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-/* ✅ 라벨+입력 줄(재검자 코드) */
 #retest_section .retestFieldRow{
   margin-top: 10px;
   display: grid;
@@ -586,17 +553,15 @@
   min-width:0;
 }
 
-/* 모바일: 라벨 위 / 입력 아래 */
 @media (max-width: 430px){
   #retest_section .retestFieldRow{ grid-template-columns: 1fr; align-items:start; }
   #retest_section .retestLabel{ text-align:left; }
 }
-/* 아주 작은 폰: 입력 2칸도 세로 */
+
 @media (max-width: 360px){
   #retest_section .retestInputs{ grid-template-columns: 1fr; }
 }
 
-/* 라벨(첫번째 자식: span)을 가운데 정렬처럼 */
 #screen_consent .consentFormGrid .field > span{
   text-align: center;
   line-height: 1.2;
@@ -604,7 +569,6 @@
   white-space: nowrap;
 }
 
-/* YYYY-MM-DD (small)도 가운데 */
 #screen_consent .consentFormGrid .field > span .small{
   display: inline-block;
   margin-top: 4px;
@@ -621,12 +585,11 @@
   #screen_consent p  { font-size: 15px; }
   .detailsInner{ font-size: 14.5px; }
 }
-/* ===== 1페이지(동의 화면) 전체 줄간격 기준값 ===== */
+
 #screen_consent{
-  line-height: 1.35;  /* 1.30~1.40 사이 취향 */
+  line-height: 1.35;  
 }
 
-/* 동의 화면 내부 텍스트 요소는 부모값을 따라가게 */
 #screen_consent p,
 #screen_consent li,
 #screen_consent label,
@@ -634,13 +597,12 @@
   line-height: inherit;
 }
 
-/* 동의서 박스만 살짝 강조 */
 #consent_section{
-  background: rgba(34,211,238,.06);               /* 아주 약한 강조 */
-  border: 1px solid rgba(34,211,238,.22);         /* 테두리 톤업 */
+  background: rgba(34,211,238,.06);               
+  border: 1px solid rgba(34,211,238,.22);         
 }
 #consent_section .sectionHead{
-  background: rgba(34,211,238,.04);               /* 헤더도 아주 약하게 */
+  background: rgba(34,211,238,.04);               
 }
 
 .miniTag{
@@ -676,23 +638,20 @@
   color:#b7c6ea;
 }
 
-/* ===== 동의서 1~7항: 항목(문장) 사이 간격 ===== */
 #screen_consent #consent_agree_text ol li{
-  margin-bottom: 10px;   /* 8~14px 사이 취향 */
+  margin-bottom: 10px;   
 }
 #screen_consent #consent_agree_text ol li:last-child{
   margin-bottom: 0;
 }
 
-/* ===== 1페이지 동의서 체크박스(제목/본문/추가안내) 글자 크기 최종 제어 ===== */
 #screen_consent #consent_checks_v3 .ckTitle{ font-size: 14px; }
 #screen_consent #consent_checks_v3 .ckBody { font-size: 13px; }
 #screen_consent #consent_checks_v3 .ckNote { font-size: 12.2px; }
 
-/* ===== 동의서 본문 ↔ 체크박스 구분선 ===== */
 #screen_consent #consent_checks_v3{
-  margin-top: 18px;       /* 체크박스 전체를 살짝 아래로 */
-  padding-top: 14px;      /* 구분선과 첫 체크박스 사이 여백 */
+  margin-top: 18px;       
+  padding-top: 14px;      
   position: relative;
 }
 
@@ -704,12 +663,10 @@
   border-top: 1px dashed rgba(255,255,255,.16);
 }
 
-/* 1페이지 입력 라벨만 조금 작게 */
 #screen_consent .consentFormGrid .field > span{
-  font-size: 14px;   /* 기본보다 조금 줄임 */
+  font-size: 14px;   
 }
 
-/* 라벨의 (YYYY-MM-DD), (2회 측정자만) 같은 small */
 #screen_consent .consentFormGrid .field > span .small{
   font-size: 12px;
 }
@@ -721,24 +678,22 @@
 }
 
 #consentHint{
-  padding-left: 10px;     /* 재검자 코드 라벨 시작선과 맞추기 */
+  padding-left: 10px;    
   padding-right: 10px;
-  margin-top: 8px;        /* 위(재검자코드 박스)와는 자연스럽게 */
-  margin-bottom: 6px;     /* 아래(버튼)과 너무 멀지 않게 */
+  margin-top: 8px;        
+  margin-bottom: 6px;     
   line-height: 1.4;
   color: var(--text);
 }
 
-/* ✅ 버튼 내부 텍스트 줄바꿈 금지 */
 #btn_consent_start{
   white-space: nowrap;
-  flex: 0 0 auto;      /* 버튼이 줄어들지 않게 */
+  flex: 0 0 auto;      
 }
 
 .retestField{ align-items:start; }
 .retestBox{ width:100%; display:flex; flex-direction:column; gap:8px; }
 
-/* '선택' 배너 통일 */
 .badgeOptional{
   display:inline-flex;
   align-items:center;
@@ -759,7 +714,7 @@
   text-overflow: ellipsis;
   flex: 1 1 auto;
   min-width: 0;
-  max-width: 60vw;   /* 58~65 사이 취향 */
+  max-width: 60vw;   
   color: var(--text);
   opacity: 1;
 }
@@ -767,8 +722,8 @@
 #screen_vfq h2{
   text-align: center; 
   font-size: 24px;
-  margin-top: 20px;     /* 제목과 상단 여백 조정 이 줄 추가 */  
-  margin-bottom: 24px;   /* 기본보다 더 넓게 */
+  margin-top: 20px;      
+  margin-bottom: 24px;   
 }
 
 #screen_vfq .vfq-subtitle{
@@ -791,7 +746,6 @@
   line-height: 1.5;
 }
 
-/* 설문 시작 문구(연구용: 조용한 전환) */
 .vfqStart{
   margin: 18px 0 10px;
   padding: 0;
@@ -802,7 +756,6 @@
   text-transform: uppercase;
 }
 
-/* 위아래 점선 두 줄(구분만) */
 .vfqStart::before,
 .vfqStart::after{
   content:"";
@@ -811,13 +764,11 @@
   margin:10px 0;
 }
 
-/* 굵게 표시한 ‘현재(지금)’도 튀지 않게 */
 .vfqStart b{ 
   color: var(--text);
   font-weight: 700;
 }
 
-/* VFQ 시작 안내(총 문항/소요시간) 가독성 업 */
 #screen_vfq p.small{
   font-size: 14.5px;
   color: rgba(230,235,255,.88);
@@ -826,23 +777,20 @@
   #screen_vfq p.small{ font-size: 14px; }
 }
 
-/* ===== VFQ 설문 시작 전 구분선 ===== */
 .vfqDivider{
   margin: 18px 0 14px;
   border: 0;
   border-top: 1px dashed rgba(255,255,255,.25);
 }
 
-/* 설문 시작 안내를 "동의서 단락"처럼 아주 약하게 구분 */
 .vfqIntroBox{
   margin: 10px 0 14px;
   padding: 12px 12px;
   border-radius: 14px;
-  background: rgba(34,211,238,.06);         /* ✅ 아주 옅은 색 */
-  border: 1px solid rgba(34,211,238,.16);   /* ✅ 얇고 은은한 테두리 */
+  background: rgba(34,211,238,.06);         
+  border: 1px solid rgba(34,211,238,.16);   
 }
 
-/* 예시/설문 점수는 작게 (테스트용) */
 #screen_vfq .vas-score{
   font-size: 12.5px;
   color: rgba(166,178,209,.9);
@@ -856,21 +804,18 @@
   }
 }
 
-/* [예시] 설명 문구 크기 줄이기 */
 #screen_vfq .exampleNote{
   font-size: 12.5px;
   line-height: 1.25; 
 }
 
-/* [예시] 점수와 안내문 사이 여백 줄이기 */
 #screen_vfq .question-block.example .vas-score{
   margin-bottom: 2px;
 }
 #screen_vfq .question-block.example .exampleNote{
-  margin-top: 2px;         /* 점수와 안내문 사이 */  
+  margin-top: 2px;           
 }
 
-/* [예시] 붉은 박스 전체 높이 줄이기 */
 .question-block.example{
   padding: 8px 12px 0px;
   margin: 8px 0 8px;
@@ -878,28 +823,26 @@
   margin-right: 0;
 }
 
-/*  VFQ 섹션을 동의서(#consent_section)와 동일 톤으로 */
 #vfq_section{
   margin-left: 0;
   margin-right: 0;
-  background: rgba(34,211,238,.06);        /* 동의서와 동일 */
-  border: 1px solid rgba(34,211,238,.22);  /* 동의서와 동일 */
+  background: rgba(34,211,238,.06);        
+  border: 1px solid rgba(34,211,238,.22);  
   border-radius: 14px;
-  overflow: hidden;                         /* sectionBox 느낌 유지 */
+  overflow: hidden;                         
 }
 
 #vfq_section .sectionHead{
-  background: rgba(34,211,238,.04);        /* 동의서 헤더와 동일 */
+  background: rgba(34,211,238,.04);        
   color: #e6ebff;
   font-weight: 800;
   font-size: 15.5px;
 }
 
 #vfq_section .sectionBody{
-  background: transparent;                  /* 바디는 기본 카드톤이 보이게 */
+  background: transparent;                  
 }
 
-/* VFQ 상단 안내문: 핵심만 눈에 들어오게 */
 #screen_vfq > p{
   font-size: 16px;
   line-height: 1.65;
@@ -909,7 +852,6 @@
   color: #ffffff;
 }
 
-/* VFQ 전체 박스 (동의서 느낌) */
 .vfqSectionBox{
   margin-top: 10px;
   padding: 14px;
@@ -918,18 +860,16 @@
   border: 1px solid rgba(34,211,238,.22);
 }
 
-/* 섹션 박스 안의 문항들은 테두리/배경을 조금 덜 튀게 */
 #vfq_section .question-block{
   background: rgba(15,23,42,.55);
   border: 1px solid rgba(255,255,255,.08);
 }
 
 #vfqExampleMount{
-  margin-top: 26px;     /* 안내문과 예시 사이 */
-  margin-bottom: 30px;  /* 예시와 설문 섹션 사이 */  
+  margin-top: 26px;     
+  margin-bottom: 30px;  
 }
 
-/* VFQ 섹션 헤더 텍스트 가운데 정렬 */
 #vfq_section .sectionHead{
   justify-content: center;
   text-align: center;
@@ -939,7 +879,6 @@
   text-align: center;
 }
 
-/* VFQ 안내/경고 텍스트는 흰색으로 */
 #vfqResult{
   color: var(--text);
   font-size: 13.5px;
@@ -963,17 +902,15 @@
 
 html, body{
   width: 100%;
-  overflow-x: hidden; /* 가로 스크롤 근본 차단 */
+  overflow-x: hidden; 
 } 
 
-/* 아주 작은 폰(<=360)에서는 입력 2칸도 세로로 */
 @media (max-width: 360px){
   .retestInputs{
     grid-template-columns: 1fr;
   }
 }
 
-/* 2열 그리드에서 재검 섹션은 항상 한 줄 전체 */
 .consentFormGrid #retest_section{
   grid-column: 1 / -1;
 }
@@ -983,41 +920,15 @@ html, body{
   border: 1px solid rgba(79,209,255,.18);
 }
 
-/* 캔버스/긴 요소가 가로로 밀지 못하게 */
 #screen_vfq, #screen_consent, .card{
   min-width: 0;
 }
 
 #screen_consent .consentFormGrid #retest_section{
-  display: block; /* .field 공통 display:grid를 무력화 */
+  display: block; 
 }
 
-/* ✅ 재검 안내: 배너만 강조, 안내문 박스는 기본 배경(=field 내부)로 */
-#screen_consent #retest_section .retestTopNote{
-  display:flex;
-  gap:8px;
-  align-items:flex-start;
-
-  background: transparent;    /* 초록 배경 제거 */
-  border: 0;                  /* 점선 테두리 제거 */
-  padding: 0;                 /* field의 padding을 그대로 사용 */
-  margin-bottom: 6px;
-
-  color: var(--muted);
-  line-height: 1.4;
-}
-
-/* 배너(선택)만 초록 강조 유지 */
-#screen_consent #retest_section .badgeOptional{
-  display:inline-flex;
-  align-items:center;
-  font-size: 11px;
-  font-weight: 800;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(34,211,238,.10);
-  border: 1px solid rgba(34,211,238,.28);
-  color: #e6fbff;
+#screen_consent #retest_section .badgeOptional{  
   margin-right: 8px;
   flex: 0 0 auto;
 }
@@ -1026,18 +937,13 @@ html, body{
   min-width: 0;
 }
 
-/* ================================
-   ✅ 재검 섹션 UI 마감(동의 화면 전용)
-   ================================ */
-
-/* 1) 배너는 1줄, 안내문은 다음줄로 */
 #screen_consent #retest_section .retestTopNote{
   display:flex;
-  flex-direction:column;      /* ✅ 핵심: 세로로 쌓기 */
+  flex-direction:column;      
   align-items:flex-start;
   gap:6px;
 
-  background: transparent;    /* 안내문 박스 초록 배경 제거 */
+  background: transparent;    
   border: 0;
   padding: 0;
   margin-bottom: 8px;
@@ -1045,7 +951,6 @@ html, body{
   line-height: 1.35;
 }
 
-/* 배너(2회 측정 대상자)만 강조 유지 */
 #screen_consent #retest_section .badgeOptional{
   display:inline-flex;
   align-items:center;
@@ -1058,42 +963,22 @@ html, body{
   color: #e6fbff;
 }
 
-/* 안내문 글자 크기: 다른 라벨과 동일하게 14px로 */
 #screen_consent #retest_section .retestNoteText{
-  font-size: 14px;            /* ✅ 요청대로 동일 크기 */
+  font-size: 14px;            
   color: #e6ebff;
   line-height: 1.35;
 }
 
-/* 2) 안내문 아래 점선 구분선 (retestFieldRow 위에) */
 #screen_consent #retest_section .retestFieldRow{
   border-top: 1px dashed rgba(255,255,255,.18);
   padding-top: 10px;
   margin-top: 6px;
 }
 
-/* 3) '재검자 코드' 라벨을 다른 항목과 살짝 크게(14px) + 가운데 */
-#screen_consent #retest_section .retestLabel{
-  font-size: 15px;            /* 살짝 크게 */
-  font-weight: 700;
-  color: #dbe6ff;
-  text-align: center;         /* ✅ 가운데 정렬 */
-  line-height: 1.2;
-}
-
-/* (2회 측정자만) 은 생년월일의 (YYYY-MM-DD)처럼 작게 */
-#screen_consent #retest_section .retestLabel .small{
-  display:block;
-  font-size: 12px;
-  margin-top: 4px;
-  color: #8ea0c9;
-}
-
-/* 동의 시각: 버튼 사이 배치용 간격 */
 #screen_consent #consentSignedAt_inline{
   display:block;
-  margin-top: 0px;     /* 동의하고 시작하기와는 더 가깝게 */
-  margin-bottom: 12px; /* 다음 버튼과는 더 멀게 */
+  margin-top: 0px;     
+  margin-bottom: 12px; 
   padding-left: 2px;
   padding-right: 2px;
   color: var(--text);
@@ -1102,50 +987,26 @@ html, body{
 }
 
 #screen_consent #consentNextHint{
-  margin-top: 2px;          /* 동의시각과 가까이 */
-  margin-bottom: 12px;      /* 다음 버튼과는 거리 */
-  font-size: 12px;          /* 동의시각과 동일 */
+  margin-top: 2px;          
+  margin-bottom: 12px;      
+  font-size: 12px;         
   line-height: 1.35;
-  color: var(--muted);      /* 기본색(회청색) */
+  color: var(--muted);     
 }
 
-/* 배너를 라벨 영역 안에 배치 */
-#screen_consent #retest_section .retestLabel{
-  position: relative;
-  text-align: left;          /* 왼쪽 정렬로 (배너가 왼쪽 상단에 자연스러움) */
-  line-height: 1.2;
-}
-
-/* 배너는 라벨 내부에서 위에 먼저 나오게 */
-#screen_consent #retest_section .retestBadge{
-  display:inline-flex;
-  margin-bottom: 6px;        /* 배너와 '재검자 코드' 사이 */
-}
-
-/* 제목만 따로 (필요시 조절용) */
-#screen_consent #retest_section .retestTitle{
-  font-size: 14px;
-  color: var(--muted);
-  font-weight: 700;
-}
-
-/* 재검자 코드 field 내부 여백을 다른 필드 느낌으로 정돈 */
 #screen_consent #retest_section{
   padding-top: 10px;
-  padding-bottom: 14px;     /* ✅ 입력칸 아래 여백 늘리기 */
+  padding-bottom: 14px;     
 }
 
-/* 입력 2칸 묶음 아래에 여백 확보 */
 #screen_consent #retest_section .retestInputs{
-  margin-bottom: 4px;       /* 0~8px 취향 */
+  margin-bottom: 4px;      
 }
 
-/* 안내문 위 여백도 다른 항목처럼 */
 #screen_consent #retest_section .retestTopNote{
   margin-top: 2px;
 }
 
-/* 미완료 문구가 비어있으면 공간 줄이기 */
 #screen_consent #consentHint:empty{
   margin-top: 0;
   margin-bottom: 0;
@@ -1153,7 +1014,6 @@ html, body{
   padding-bottom: 0;
 }
 
-/* ===== 재검자 안내문: ※ 기준 정렬 ===== */
 #screen_consent #retest_section .retestNoteText{
   display:flex;
   flex-direction:column;
@@ -1175,75 +1035,6 @@ html, body{
   line-height:1.45;
 }
 
-#screen_consent #retest_section .noteExample{
-  padding-left: 0;   /* bullet 16px + gap 8px */
-  color: #ffffff;
-  line-height:1.45;
-  font-weight:700;
-}
-
-
-/* ===== 재검자 라벨 가운데 정렬 ===== */
-#screen_consent #retest_section .retestLabel{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  line-height:1.2;
-  color: var(--muted);
-  font-size:14px;
-}
-
-#screen_consent #retest_section .retestLabel .retestBadge{
-  margin:0 0 8px 0;
-}
-
-#screen_consent #retest_section .retestLabel .retestTitle{
-  font-size:15px;
-  font-weight:700;
-  color:#dbe6ff;
-}
-
-#screen_consent #retest_section .retestLabel .small{
-  margin-top:4px;
-  font-size:12px;
-  color: var(--muted);
-}
-
-/* ===== 재검 라벨 최종 정리 ===== */
-#screen_consent #retest_section .retestLabel{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  line-height:1.15;
-  color: var(--muted);
-  font-size:14px;
-}
-
-#screen_consent #retest_section .retestLabel .retestBadge{
-  margin: 0 0 6px 0;
-}
-
-#screen_consent #retest_section .retestLabel .retestTitle{
-  font-size:15px;
-  font-weight:700;
-  color:#dbe6ff;
-  line-height:1.1;
-  margin:0;
-  padding:0;
-}
-
-#screen_consent #retest_section .retestLabel .small{
-  display:block;
-  margin-top: 2px;
-  font-size:12px;
-  color: var(--muted);
-  line-height:1.1;
-}
-
 #screen_consent #retest_section .retestExample{
   text-align:center;
   margin-top:6px;
@@ -1258,14 +1049,6 @@ html, body{
   margin-bottom:1px;
 }
 
-#screen_consent #retest_section .retestLabel .small{
-  display:block;
-  margin-top:-1px;
-  font-size:12px;
-  line-height:1.0;
-}
-
-/* ===== 재검자 코드 예시 문구 조정 ===== */
 #screen_consent #retest_section .noteExample{
   margin-top: 8px;
   margin-bottom: 6px;
@@ -1287,7 +1070,6 @@ html, body{
   margin-top: 2px;
 }
 
-/* ===== 재검자 코드 제목/부제 간격 미세조정 ===== */
 #screen_consent #retest_section .retestLabel{
   display:flex;
   flex-direction:column;
@@ -1312,13 +1094,12 @@ html, body{
 
 #screen_consent #retest_section .retestLabel .small{
   display:block;
-  margin-top: 4px;   /* ✅ 여기 핵심 */
+  margin-top: 4px;   
   font-size:12px;
   color: var(--muted);
   line-height:1.1;
 }
 
-/* ===== 생년월일: 연/월/일 선택형 ===== */
 #screen_consent .birthField{
   display:grid;
   grid-template-columns: 100px 1fr;
@@ -1367,7 +1148,6 @@ html, body{
   text-align:left;
 }
 
-/* ===== 동의 버튼 아래 안내문 ===== */
 #screen_consent #consentLockGuide{
   margin-top: 2px;
   margin-bottom: 2px;
@@ -1387,7 +1167,6 @@ html, body{
   display: none;
 }
 
-/* ===== 동의 후 기본정보 잠금 ===== */
 #screen_consent .locked-field{
   opacity: 0.72;
   cursor: not-allowed;
@@ -1437,21 +1216,21 @@ html, body{
 }
 
 .method-note{
-  font-size: 0.85em;   /* 기본보다 약간 크게 */
+  font-size: 0.85em;  
   line-height: 1.5;
   margin-top:6px;
   margin-bottom:6px;
 }
 
 .exampleList{
-  display: inline-block;   /* 가운데 정렬 유지 */
-  text-align: left;        /* 내부는 왼쪽 정렬 */
-  margin-top:8px;          /* 위 문장과 간격 */
-  padding-left: 0.8em;  /* ← 이 값 조절 */
+  display: inline-block;   
+  text-align: left;       
+  margin-top:8px;          
+  padding-left: 0.8em;  
 }
 
 .noteExample{
-  text-align:center;       /* 전체 중앙 정렬 */
+  text-align:center;      
 }
 
 .warn-note{
@@ -1462,7 +1241,7 @@ html, body{
 }
 
 .warn-note + .warn-note{
-  margin-top:0;   /* 두 번째 줄부터 간격 축소 */
+  margin-top:0;   
 }
 
 .exampleMain{
@@ -1470,21 +1249,14 @@ html, body{
   text-align:left;
 }
 
-.exampleList{
-  display:inline-block;
-  text-align:left;
-  margin-top:8px;
-  }
-
 .retestTitle{
-  margin-left:10px;   /* 6~12px 사이에서 조절 */
+  margin-left:10px;   
 }
 
 </style>
 </head>
 <body>
-<div class="wrap">
-  <!-- 동의/안내 페이지 -->
+<div class="wrap">  
   <div class="card" id="screen_consent">
   <div class="consentHeader">
     <h1>연구대상자 설명문 및 동의서</h1>
@@ -1497,8 +1269,7 @@ html, body{
   </div>
 </div>
 
-
-    <!-- 요약(항상 표시) -->
+    
     <div class="consentSummary">
       <div class="summaryHead">
   <h2 class="consentSubTitle" style="margin:0;">
@@ -1523,9 +1294,9 @@ html, body{
       <ul>
         <li><b>진행 내용 :</b> K-VFQ 17문항 설문 응답 (약 5-10분)</li>
         <li><b>중단 가능 :</b> 참여는 자발적이며 언제든 중단/철회할 수 있고 불이익이 없습니다.</li>        
-        <li><b>저장 데이터 :</b> 참여자 분류를 위한 생년월일 및 성별, 설문 응답 결과가 연구 목적으로 저장됩니다.</li>
+        <li><b>저장 데이터 :</b> 참여자 분류를 위한 생년월일 및 성별, 설문 응답 결과가 연구 목적으로 저장되며, 2회 측정 대상자의 경우 재검자 코드가 추가로 저장될 수 있습니다.</li>
         <li><b>비수집 정보 :</b> 영상·사진·음성 등 개인을 식별할 수 있는 정보는 수집·저장되지 않습니다.</li>
-        <li>연구 참여 및 동의 시점은 시스템에 자동으로 기록됩니다.</li>
+        <li>연구 참여 및 동의 시점과 설문 제출 시각은 시스템에 자동으로 기록됩니다.</li>
 
         <li class="excludeItem"> 
            <b>제외 대상 :</b><br>
@@ -1536,7 +1307,7 @@ html, body{
       </ul>            
     </div>
 
-    <!-- 전체 설명문(접기/펼치기) -->
+    
     <details class="detailsBox" id="details_full">
     <summary>
       <span class="sumTitle">2. 연구 설명문 전체 보기</span>
@@ -1605,10 +1376,10 @@ html, body{
 
         <h3>6. 개인정보 및 비밀 보장</h3>
         <p>
-          <b>수집 항목 : 생년월일, 성별, 설문 결과.</b>
+          <b>수집 항목 : 생년월일, 성별, 설문 결과, (2회 측정 대상자의 경우) 재검자 코드.</b>
           <br>데이터는 접근 권한이 제한된 보안 환경에 저장되며 연구 종료 후 3년 보관 후 폐기됩니다.
           <br>제3자 제공은 원칙적으로 없으나, IRB가 절차 및 신뢰성 검증을 위해 열람을 요청할 경우, 익명화 상태로 제공될 수 있습니다.
-          <br>또한, 연구 참여 및 동의 시점은 시스템에 자동으로 기록됩니다.
+          <br>또한, 연구 참여 및 동의 시점과 설문 제출 시각은 시스템에 자동으로 기록됩니다.
         </p>
 
         <h3>7. 연구 문의</h3>
@@ -1620,19 +1391,15 @@ html, body{
       </div>
     </details>
 
-    <!-- =========================
-     ✅ 동의서 섹션 (고정 박스)
-     ========================= -->
+    
 <div class="sectionBox" id="consent_section">
-
-  <!-- 박스 제목 -->
+  
   <div class="sectionHead">
   <span>3. 연구대상자 동의서</span>
 </div>
 
   <div class="sectionBody">
-
-    <!-- (1) 동의서 문항(1~7) -->
+    
     <div class="detailsInner" id="consent_agree_text">
       <ol style="margin:6px 0 0 18px; padding:0;">
         <li>나는 본 연구의 설명문을 읽었으며, 연구의 목적과 절차에 대해 충분히 안내받았고, 궁금한 사항은 언제든지 연구자에게 문의할 수 있음을 이해하였습니다.</li>
@@ -1649,7 +1416,7 @@ html, body{
       </p>
     </div>
 
-    <!-- (2) 체크박스 3개 -->
+    
     <div class="consentChecks" id="consent_checks_v3" style="margin-top:12px;">
       <div class="checkRow finalAgree">
         <input id="c_main" type="checkbox" />
@@ -1676,8 +1443,7 @@ html, body{
   </div>
 </div>
 
-
-    <!-- 기본 정보 -->
+    
     <div class="grid two consentFormGrid">
     <div class="field birthField">
         <span>생년월일<br><span class="small">(YYYY-MM-DD)</span></span>
@@ -1711,7 +1477,7 @@ html, body{
         <input id="pid_preview" readonly value="(동의 후 자동 생성됨)" />
       </div>
 
- <!-- ✅ 재검자(2회) 영역: 안내+입력 한 덩어리로 묶음 (절대 분리 금지) -->
+ 
 <div class="field retestSection" id="retest_section">
   <div class="retestTopNote">
   <div class="retestNoteText">
@@ -1771,7 +1537,7 @@ html, body{
 
     <div id="consentHint" class="small" style="color: var(--text);"></div>    
 
-    <!-- 1줄: 동의 버튼 + 동의완료시각 -->
+    
 <div class="row consentRow1">
   <button class="btn primary" id="btn_consent_start" onclick="onConsentSign()" disabled>
     동의하고 시작하기 
@@ -1781,7 +1547,7 @@ html, body{
 <div id="consentLockGuide" class="small"></div>
 <span id="consentSignedAt_inline" class="small signedAt"></span>
 
-<!-- 2줄: 다음 버튼(아래로) -->
+
 <div class="row consentRow2">
   <button class="btn primary" id="btn_consent_next" onclick="onConsentNext()" disabled>
     다음
@@ -1792,7 +1558,7 @@ html, body{
     </div>
 </div> 
 
-    <!-- VFQ VAS 17문항 -->
+    
   <div class="card hidden" id="screen_vfq">
     <h2>Visual Fatigue Questionnaire</h2>
     <div class="vfq-subtitle">시각 피로(안정피로) 설문</div>
@@ -1816,10 +1582,10 @@ html, body{
      표시는 <b>왼쪽 끝</b>부터 <b>오른쪽 끝</b>까지 <b>어느 위치에나</b> 할 수 있습니다. (<b>굵은 선 포함</b>, 수정 가능)
     </p>
 
-<!-- 예시는 섹션 박스 밖에 둘 자리 -->
+
 <div id="vfqExampleMount"></div>
 
-<!-- 설문 섹션 박스 (동의서 3번처럼) -->
+
 <div class="sectionBox" id="vfq_section">
 
   <div class="sectionHead">
@@ -1827,7 +1593,7 @@ html, body{
   </div>
 
   <div class="sectionBody">
-    <!-- ‘현재(지금)~’ 안내는 "그냥 본문"으로 -->
+    
     <p style="margin:0;color:var(--muted);line-height:1.55;">
       <b style="color:var(--text);">'현재'</b> 다음 증상 중 느껴지는 것이 있습니까?
     </p>
@@ -1845,11 +1611,11 @@ html, body{
   <button class="btn ghost" id="btn_vfq_back" onclick="go('screen_consent')">뒤로</button>
 </div>
 
-    <!-- 지금은 테스트용으로 점수 요약을 보여주고, 나중엔 숨겨도 됨 -->
+    
     <div id="vfqResult" class="small" style="margin-top:10px;white-space:pre-line;"></div>
   </div>
   
-<!-- 설문 완료 감사 페이지 -->
+
 <div class="card hidden" id="screen_thankyou">
   <h2 style="text-align:center; margin-top:20px; margin-bottom:18px;">참여해 주셔서 감사합니다</h2>
 
@@ -1875,7 +1641,7 @@ html, body{
 
       <p class="thanks-note" style="margin-top:8px;">
           <span class="mark">※</span>
-          <span class="txt">화면을 닫기 전, 위 참여자ID와 제출 시각이 정상적으로 표시되는지 확인하신 후 화면을 종료해주세요.</span>
+          <span class="txt">화면을 닫기 전, 참여자ID와 제출 시각이 정상적으로 표시되는지 확인하신 후 화면을 종료해주세요.</span>
       </p>
     </div>
   </div>
@@ -1885,36 +1651,20 @@ html, body{
   </div>
 </div> 
 
-<script>
-  // ---------- 전역 상태 ----------
-// 인앱 브라우저/플랫폼 감지
-const UA = navigator.userAgent || '';
-const isKakao = /KAKAOTALK/i.test(UA);
-const isLine  = /Line\//i.test(UA);
-const isIG    = /Instagram/i.test(UA);
-const isFB    = /FBAN|FBAV/i.test(UA);
-const isInApp = isKakao || isLine || isIG || isFB;
-const isAndroid = /Android/i.test(UA);
-const isIOS = /iPhone|iPad|iPod/i.test(UA);
-
-  // ✅ Google Sheet 서버 주소
+<script> 
+  
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxbWd2Xh1pMfWfGZHGL1TA0RD5HaSSjqdi1Csc6ZfmaG7eu2K4C-YkRyDeZbOXLrRjE/exec";
 
-// 시트로 데이터 보내는 함수
+
 async function sendToSheet(payload){
   try{
-    console.log('[sendToSheet] payload:', payload);
-
-    // 중요: GAS는 CORS 때문에 응답을 읽으려 하면 막히는 경우가 많아서
-    // 일단 "보내기만" 확실히 되도록 no-cors로 보냄
     await fetch(GAS_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload),
     });
-
-    console.log('[sendToSheet] sent (no-cors). Check Google Sheet.');
+   
     return true;
   }catch(err){
     console.error('[sendToSheet] FAILED:', err);
@@ -1934,11 +1684,10 @@ function toKSTString(d = new Date()){
   return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`; // 예: 2026-02-24 03:37:35
 }
 
-  // '연구 설명문 전체 보기' 확인 완료 여부
+  
   let fullDocConfirmed = false;
   let consentSigned = false;
-  let isSubmitting = false;
-  const NPC_SPEED_MAX = 4.0; // NPC 이동 속도 경고 임계값(cm/s)  
+  let isSubmitting = false;  
   const screens=['screen_consent','screen_vfq','screen_thankyou']
 
   function go(id){
@@ -1961,11 +1710,10 @@ function toKSTString(d = new Date()){
   });
 }
 
-  // ---------- VFQ VAS 17문항 (오늘 만든 캔버스 버전) ----------
-  // 이제는 항상 어두운 배경(지금 앱 디자인)에 맞게 흰색 선 사용
+  
   
   function getLineColor(){ return '#ffffff'; }
-  function getDashedColor(){ return '#64748b'; } // 점선 약간 회색
+  function getDashedColor(){ return '#64748b'; } 
   function getTextColor(){ return '#e5e7eb'; }
   function getHighlightColor(){ return '#f97316'; }
 
@@ -2004,7 +1752,7 @@ function createVAS(index, canvas, scoreElem, opts = {}) {
   canvas.style.height = "auto";
   canvas.style.aspectRatio = `${logicalWidth} / ${logicalHeight}`;
 
-  //  중요: scale 누적 방지(너 코드의 ctx.scale(dpr,dpr)로는 재호출 시 깨질 수 있음)
+  
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   const leftX  = 30;
@@ -2012,7 +1760,7 @@ function createVAS(index, canvas, scoreElem, opts = {}) {
   const lineY  = opts.compact ? 55 : 60;
   const lineWidthPx = rightX - leftX;
 
-  //  presetValue가 있으면 예시 모드
+  
   const isExample = typeof opts.presetValue === 'number';
   let current = isExample ? opts.presetValue : null;
 
@@ -2029,7 +1777,7 @@ if (scoreElem && isExample) {
   function redraw(){
     ctx.clearRect(0, 0, logicalWidth, logicalHeight);
 
-    // 점선 기준선
+    
     ctx.strokeStyle = getDashedColor();
     ctx.setLineDash([4,4]);
     ctx.lineWidth = 1;
@@ -2039,7 +1787,7 @@ if (scoreElem && isExample) {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // 굵은 세로선 (0, 50, 100)
+    
     ctx.strokeStyle = getLineColor();
     ctx.lineWidth = 2.5;
     [0,50,100].forEach(mm => {
@@ -2050,7 +1798,7 @@ if (scoreElem && isExample) {
       ctx.stroke();
     });
 
-    // 얇은 세로선
+    
     ctx.strokeStyle = getLineColor();
     ctx.lineWidth = 1;
     [12.5,25,37.5,62.5,75,87.5].forEach(mm => {
@@ -2061,7 +1809,7 @@ if (scoreElem && isExample) {
       ctx.stroke();
     });
 
-    // 레이블
+    
     ctx.fillStyle = getTextColor();
     ctx.font = "15px sans-serif";
     ctx.textAlign = "center";
@@ -2085,11 +1833,11 @@ if (scoreElem && isExample) {
     ctx.fillText("뚜렷하게",   rightTextX, baseY2);
     ctx.fillText("느껴진다",   rightTextX, baseY3);
 
-    // 주황 응답선(기본은 기존 굵기 유지) + 예시만 링 표시
+    
     if(current !== null){
       const x = mmToX(current);
 
-      // ✅ 실제 문항은 종이 설문 느낌 유지: 기존 굵기 2
+      
       ctx.strokeStyle = getHighlightColor();
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -2097,7 +1845,7 @@ if (scoreElem && isExample) {
       ctx.lineTo(x, lineY + 20);     
       ctx.stroke();
 
-      // ✅ 예시만 점선 링(원형 강조)
+      
       if(opts.markerStyle === "ring"){
         ctx.save();
         ctx.strokeStyle = "rgba(249, 115, 22, 0.18)";
@@ -2111,7 +1859,7 @@ if (scoreElem && isExample) {
   }
 }
 
- //  실제 문항: 클릭해서 선택
+ 
   if(!isExample){    
     canvas.addEventListener('click', (evt)=>{
       const rect = canvas.getBoundingClientRect();
@@ -2128,7 +1876,7 @@ if (scoreElem && isExample) {
       if (scoreElem) scoreElem.textContent = `선택 완료`;
     });
   } else {
-    //  예시 문항: 터치/클릭 불가
+    
     canvas.style.pointerEvents = "none";
     if(scoreElem) scoreElem.textContent = `선택 완료`;
   }
@@ -2137,14 +1885,14 @@ if (scoreElem && isExample) {
   vasItems.push({ redraw });
 }
 
-  // VFQ 화면 구성
+  
   function setupVFQ(){
-    vasItems.length = 0;   // 리셋 시 redraw 목록 누적 방지
+    vasItems.length = 0;   
     const container = document.getElementById('questions');
     if(!container) return;
     container.innerHTML = "";
 
-// ===== 예시 문항을 구분선 바로 아래에 삽입 =====
+
 (function addExample(){
   const block = document.createElement('div');
   block.className = 'question-block example';
@@ -2171,7 +1919,7 @@ if (scoreElem && isExample) {
 
 const mount = document.getElementById('vfqExampleMount');
 if(mount){
-  mount.innerHTML = "";       // 혹시 중복 생성 방지
+  mount.innerHTML = "";       
   mount.appendChild(block);
 }
 
@@ -2231,10 +1979,10 @@ if(mount){
     const backBtn = gid('btn_vfq_back');
     if(backBtn) backBtn.disabled = true;
 
-// 총합 계산
+
 calcVFQ();
 
-// ✅ 제출 직전 필수 상태 재확인
+
 if(!consentSigned || !S.pid || !S.birth || !S.sex || !S.consentAtISO || !S.consentAtKST){
   alert('동의 또는 기본정보 상태가 올바르지 않습니다. 처음부터 다시 진행해 주세요.');
   isSubmitting = false;
@@ -2258,7 +2006,7 @@ try{
     retest_code: S.retest2 || '',
     vfq_total: S.vfqSum,
 
-    // q1~q17을 헤더에 맞춰 보내기 (중요!)
+    
     q1: vfqAnswers[0],  q2: vfqAnswers[1],  q3: vfqAnswers[2],  q4: vfqAnswers[3],  q5: vfqAnswers[4],
     q6: vfqAnswers[5],  q7: vfqAnswers[6],  q8: vfqAnswers[7],  q9: vfqAnswers[8],  q10: vfqAnswers[9],
     q11: vfqAnswers[10], q12: vfqAnswers[11], q13: vfqAnswers[12], q14: vfqAnswers[13], q15: vfqAnswers[14],
@@ -2276,14 +2024,14 @@ try{
     return;    
   }
 
-  // Thank you 화면에 표시 값 채우기
+  
   const tp = gid('thanks_pid'); 
   if(tp) tp.textContent = S.pid || '-';
 
   const tt = gid('thanks_time');
   if(tt) tt.textContent = toKSTString(now2);
 
-  // ✅ 성공했을 때 다음 페이지
+  
   go('screen_thankyou');
 
 }catch(err){
@@ -2301,19 +2049,19 @@ try{
  }
 }
     
-  // VFQ 총합 계산: CSV에서 사용하는 값
+  
   function calcVFQ(){
     S.vfqSum = vfqAnswers.reduce((sum,v)=> sum + (typeof v === 'number' ? v : 0), 0);
   } 
 
-  // ---------- 초기 ----------
+  
 (function init(){
   function bind(){
 
-    // 필수 체크박스 목록(3개)
+    
     const requiredChecks = ['c_main','c_esign'];
 
-    // 이벤트 바인딩
+    
     [...requiredChecks, 'sex'].forEach(id=>{
       const el = document.getElementById(id);
       if(!el) return;
@@ -2343,7 +2091,7 @@ try{
     setupBirthSelects();
     toggleConsentBtn();
 
-    // --- '연구 설명문 전체 보기' 펼치면 배지 '확인 완료'로 변경 ---
+    
     (function trackFullDetailsOpen(){
       const d = document.getElementById('details_full');
       const badge = document.getElementById('badge_full');
@@ -2505,13 +2253,13 @@ function setupBirthSelects(){
   const unchecked = requiredChecks.filter(id => !gid(id)?.checked);
   const checksOk  = unchecked.length === 0;
 
-  const fullOk = !!fullDocConfirmed;     // 추가
-  const ok = checksOk && birthOk && sexOk && fullOk;   // 수정
+  const fullOk = !!fullDocConfirmed;     
+  const ok = checksOk && birthOk && sexOk && fullOk;   
 
   const btn = gid('btn_consent_start');
   if(btn) btn.disabled = !ok;
 
-  // 서명 전엔 '동의하고 시작하기'만 활성 가능, 서명 후엔 잠그고 '다음'만 활성
+  
   const nextBtn = gid('btn_consent_next');
   if(nextBtn) nextBtn.disabled = !consentSigned;
 
@@ -2526,15 +2274,15 @@ function setupBirthSelects(){
   if(hint) hint.textContent = ok ? '' : ('미완료 : ' + msg.join(', '));
 }
 
-// 생년월일 기반 PID 생성 + (재검 코드 있으면 -K74 형태로 결합) + used_ids 중복 suffix
+
 function buildParticipantId(yyyymmdd, ini, dig){  
   const baseDate = yyyymmdd || 'NA';
 
-  // 재검자 코드가 완전하게 들어온 경우에만 붙임
+  
   const hasRetest = (typeof ini === 'string' && ini.length === 1) && (/^\d{2}$/.test(String(dig||'')));
   
   if(hasRetest){
-    return `${baseDate}-${ini}${dig}`;   // 예: 19900101-K74
+    return `${baseDate}-${ini}${dig}`;   
   }
   
   return baseDate;
@@ -2553,7 +2301,7 @@ function onConsentSign(){
 
   const fullOk = !!fullDocConfirmed;
 
-  // ✅ 재검 코드: 선택사항
+  
   const ini = (gid('retest_initial')?.value || '').trim().toUpperCase();
   const dig = (gid('retest_digits')?.value || '').trim();
   const retestOK = (ini.length === 1 && /^\d{2}$/.test(dig));
@@ -2570,7 +2318,7 @@ function onConsentSign(){
   const yyyymmdd = birthVal.replaceAll('-','');
   const pid = buildParticipantId(yyyymmdd, ini, dig);
 
-  // 상태 저장
+  
   S.pid = pid;
   S.birth = birthVal;
   S.sex = sexVal;
@@ -2579,7 +2327,7 @@ function onConsentSign(){
   const pv = gid('pid_preview');
   if(pv) pv.value = pid;
 
-  // 동의 시각 기록 (UTC + KST)
+  
   const now = new Date();
   S.consentAtISO = now.toISOString();
   S.consentAtKST = toKSTString(now);
@@ -2589,35 +2337,35 @@ function onConsentSign(){
     lockGuide.innerHTML = '<b>입력한 내용이 잘못된 경우</b>, 종료 후 <b>다시 시작</b>해 주세요.';
   }
   
-  // 동의 시각 표시 (지금 HTML에 존재하는 id는 consentSignedAt_inline임) 와 다음버튼 안내
+ 
   const inline = gid('consentSignedAt_inline');
   if(inline) inline.textContent = `동의 시각: ${S.consentAtKST}`;
 
   const nh = gid('consentNextHint');
   if(nh) nh.textContent = '왼쪽의 다음 버튼을 누르면 다음 페이지로 이동합니다.';
 
-    // ✅ 서명 완료 처리
+    
   consentSigned = true;  
 
-  // ✅ 기본정보 잠금
+ 
   lockConsentInputs();
 
-  // ✅ 동의 체크박스도 잠금
+ 
   ['c_main','c_esign'].forEach(id=>{
     const el = gid(id);
     if(el) el.disabled = true;
   });
 
-  // ✅ 버튼 색상/활성 스텝 처리
+  
   const startBtn = gid('btn_consent_start');
   const nextBtn  = gid('btn_consent_next');
 
   if(startBtn){
-    startBtn.classList.remove('primary'); // 회색톤으로
+    startBtn.classList.remove('primary'); 
     startBtn.disabled = true;
   }
   if(nextBtn){
-    nextBtn.classList.add('primary');     // 다음을 파란색으로
+    nextBtn.classList.add('primary');     
     nextBtn.disabled = false;
   }
 
@@ -2626,18 +2374,12 @@ function onConsentSign(){
 
 function onConsentNext(){
   if(!consentSigned) return;
-  go('screen_vfq');   // 무조건 2페이지(VFQ)로
-}
+  go('screen_vfq');   
+}  
 
-  // 보조: CSV 양식 다운로드 (빈 헤더)
-  function downloadTemplate(){
-    const header=['pid','timestamp','birth','sex','pdmm','focal_px','pixPD_calib','VFQ_sum','NPC1_cm','NPC2_cm','NPC3_cm','NPC_mean_cm','RT_trials','RT_median_ms','RT_p90_ms','RT_lapses','RT_list_ms'].join(',')+ '\\n';
-    const blob=new Blob([header],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download='template.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url)
-  }
 
 function resetAll(){
-  // 상태 초기화
+  
   consentSigned = false;
   fullDocConfirmed = false;
   isSubmitting = false;
@@ -2650,10 +2392,10 @@ function resetAll(){
   S.consentAtKST = '';
   S.vfqSum = 0;
 
-  // 기본정보 잠금 해제
+  
   unlockConsentInputs();
 
-  // 체크박스/입력 초기화
+  
   ['c_main','c_esign'].forEach(id=>{
   const el = gid(id);
   if(!el) return;
@@ -2669,7 +2411,7 @@ function resetAll(){
   if(gid('retest_digits')) gid('retest_digits').value = '';
   if(gid('pid_preview')) gid('pid_preview').value = '(동의 후 자동 생성됨)';  
 
-  // 동의 시각 표시 초기화 및 다음 버튼 안내문 초기화
+ 
   if(gid('consentSignedAt_inline')) gid('consentSignedAt_inline').textContent = '';
   if(gid('consentTime')) gid('consentTime').textContent = '';
   if(gid('consentNextHint')) gid('consentNextHint').textContent = '';
@@ -2691,15 +2433,15 @@ function resetAll(){
   const backBtn = gid('btn_vfq_back');
   if(backBtn) backBtn.disabled = false;
 
-  // VFQ 답 초기화
+ 
   for(let i=0;i<vfqAnswers.length;i++) vfqAnswers[i]=null;
   if(gid('vfqResult')) gid('vfqResult').textContent = '';
 
-  // 버튼 상태 초기화
+ 
   if(gid('btn_consent_next')) gid('btn_consent_next').disabled = true;
   if(gid('btn_consent_start')) gid('btn_consent_start').disabled = true; // toggleConsentBtn가 다시 켜줌
 
-  // 배지(필수확인) 되돌리기
+  
   const badge = gid('badge_full');
   if(badge){
     badge.textContent = '필수 확인';
@@ -2708,11 +2450,7 @@ function resetAll(){
   }
   const d = gid('details_full');
   if(d) d.open = false;
-
-  // 생년월일 select 다시 세팅
-  setupBirthSelects();
-
-  // VFQ 다시 그리기
+  
   setupVFQ();
 
   toggleConsentBtn();
